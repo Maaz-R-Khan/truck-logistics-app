@@ -34,3 +34,9 @@ Program and Hardware
 •	Database: SQLite for lightweight local storage
 •	Algorithms: Graph-based shortest path (Dijkstra’s, A*)
 •	Hardware Requirements: Standard desktop or laptop computer with at least 8GB RAM for development and execution
+
+## Team Coordination
+- **Meeting Times:**
+    - Mondays: 12:00 PM – 12:30 PM
+    - Fridays: 11:00 AM – 11:30 AM
+- **Meeting Platform:** Discord  
