@@ -1,6 +1,5 @@
 package org.example.trucklogisticsapp.model;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -8,16 +7,18 @@ public class MaintenanceRecord {
 
     private String recordId;
     private String truckId;
+
+    // To be consisntent with maaz changes
+    private LocalDate scheduledDate;
+    private LocalDate datePerformed;
+
     private String type;
     private String description;
     private String mechanicName;
     private double cost;
 
-    private LocalDate scheduledDate;
-    private LocalDate datePerformed;
-    private LocalDate nextDueDate;
-
     private String status; // Scheduled, In Progress, Completed
+    private LocalDate nextDueDate;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -41,6 +42,8 @@ public class MaintenanceRecord {
         this.createdAt = LocalDateTime.now();
     }
 
+    // ------------------ GETTERS ------------------ //
+
     public String getRecordId() { return recordId; }
     public String getTruckId() { return truckId; }
     public String getType() { return type; }
@@ -52,12 +55,19 @@ public class MaintenanceRecord {
     public LocalDate getNextDueDate() { return nextDueDate; }
     public String getStatus() { return status; }
 
+    // ------------------ SETTERS ------------------ //
+
+    public void setTruckId(String truckId) { this.truckId = truckId; }
+    public void setType(String type) { this.type = type; }
     public void setDescription(String description) { this.description = description; }
     public void setMechanicName(String mechanicName) { this.mechanicName = mechanicName; }
     public void setDatePerformed(LocalDate datePerformed) { this.datePerformed = datePerformed; }
     public void setNextDueDate(LocalDate nextDueDate) { this.nextDueDate = nextDueDate; }
     public void setStatus(String status) { this.status = status; }
     public void setCost(double cost) { this.cost = cost; }
+    public void setScheduledDate(LocalDate scheduledDate) { this.scheduledDate = scheduledDate; }
+
+    // ------------------ LOGIC METHODS ------------------ //
 
     public boolean isOverdue() {
         return status.equalsIgnoreCase("Scheduled")
@@ -70,20 +80,13 @@ public class MaintenanceRecord {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // ------------------ STRING ------------------ //
+
     @Override
     public String toString() {
-        return recordId + " - " + type + " (" + status + ")";
-    }
-
-    public void setTruckId(String text) {
-        this.truckId = text;
-    }
-
-    public void setType(String text) {
-        this.type = text;
-    }
-
-    public void setScheduledDate(LocalDate value) {
-        this.scheduledDate = value;
+        return String.format(
+                "Maintenance [%s] - %s on Truck %s (%s)",
+                recordId, type, truckId, status
+        );
     }
 }
