@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.SVGPath?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.trucklogisticsapp.controller.MainLayoutController"
+            stylesheets="@styles.css" styleClass="main-container">
+
+    <!-- Left Sidebar Navigation -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="280" spacing="0">
+            <padding>
+                <Insets top="32" right="20" bottom="32" left="20"/>
+            </padding>
+
+            <!-- Logo and App Name -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <padding>
+                    <Insets bottom="40"/>
+                </padding>
+                <!-- Truck Icon -->
+                <Region styleClass="logo-icon"/>
+                <VBox spacing="0">
+                    <Text text="LogiTruck" styleClass="logo-title"/>
+                    <Text text="Route Planner" styleClass="logo-subtitle"/>
+                </VBox>
+            </HBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="8" VBox.vgrow="ALWAYS">
+                <!-- Dashboard -->
+                <Button text="Dashboard" styleClass="nav-button, nav-button-active"
+                        onAction="#showDashboard" mnemonicParsing="false">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Region styleClass="nav-icon-dashboard"/>
+                            <Text text="Dashboard"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Trucks -->
+                <Button text="Trucks" styleClass="nav-button"
+                        onAction="#showTrucks" mnemonicParsing="false">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Region styleClass="nav-icon-truck"/>
+                            <Text text="Trucks"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Drivers -->
+                <Button text="Drivers" styleClass="nav-button"
+                        onAction="#showDrivers" mnemonicParsing="false">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Region styleClass="nav-icon-drivers"/>
+                            <Text text="Drivers"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Shipments -->
+                <Button text="Shipments" styleClass="nav-button"
+                        onAction="#showShipments" mnemonicParsing="false">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Region styleClass="nav-icon-shipments"/>
+                            <Text text="Shipments"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Route Planner -->
+                <Button text="Route Planner" styleClass="nav-button"
+                        onAction="#showRoutePlanner" mnemonicParsing="false">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Region styleClass="nav-icon-route"/>
+                            <Text text="Route Planner"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Spacer -->
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <!-- Settings at bottom -->
+                <Button text="Settings" styleClass="nav-button"
+                        onAction="#showSettings" mnemonicParsing="false">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Region styleClass="nav-icon-settings"/>
+                            <Text text="Settings"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Main Content Area (will be swapped based on navigation) -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content-area"/>
+    </center>
+
+</BorderPane>
