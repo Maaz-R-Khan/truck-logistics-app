@@ -98,6 +98,7 @@
             <columns>
                 <TableColumn fx:id="colTruckId" text="Truck ID" prefWidth="100"/>
                 <TableColumn fx:id="colLicensePlate" text="License Plate" prefWidth="120"/>
+                <TableColumn fx:id="colSource" text="Source" prefWidth="120" />
                 <TableColumn fx:id="colModel" text="Model" prefWidth="180"/>
                 <TableColumn fx:id="colCapacity" text="Capacity" prefWidth="120"/>
                 <TableColumn fx:id="colFuelMPG" text="Fuel MPG" prefWidth="100"/>

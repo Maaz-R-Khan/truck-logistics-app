@@ -6,10 +6,10 @@ import javafx.stage.Stage;
 import org.example.trucklogisticsapp.model.Truck;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 /**
- * THIS IS THE MISSING CONTROLLER THAT MAKES THE EDIT BUTTON WORK!
- * Controller for editing truck information
+ * Controller for editing truck information with delete functionality
  */
 public class EditTruckDialogController {
 
@@ -19,12 +19,15 @@ public class EditTruckDialogController {
     @FXML private TextField txtYear;
     @FXML private TextField txtCapacity;
     @FXML private TextField txtPlate;
+    @FXML private TextField txtSource;  // NEW: Source/Dealer field
     @FXML private CheckBox chkAvailable;
     @FXML private TextArea txtNotes;
     @FXML private DatePicker dateLastMaintenance;
     @FXML private ComboBox<Integer> cmbMaintenanceInterval;
+    @FXML private Button btnDelete;
 
     private Truck truck;
+    private boolean deleted = false;
 
     @FXML
     public void initialize() {
@@ -49,6 +52,12 @@ public class EditTruckDialogController {
         txtYear.setText(String.valueOf(truck.getYear()));
         txtCapacity.setText(String.valueOf(truck.getCapacityKg()));
         txtPlate.setText(truck.getPlateNumber());
+
+        // Set source field
+        if (truck.getSource() != null && !truck.getSource().isEmpty()) {
+            txtSource.setText(truck.getSource());
+        }
+
         chkAvailable.setSelected(truck.isAvailable());
         txtNotes.setText(truck.getNotes() != null ? truck.getNotes() : "");
 
@@ -61,6 +70,13 @@ public class EditTruckDialogController {
         }
 
         System.out.println("✅ Truck data loaded successfully");
+    }
+
+    /**
+     * Check if truck was deleted
+     */
+    public boolean wasDeleted() {
+        return deleted;
     }
 
     /**
@@ -83,6 +99,7 @@ public class EditTruckDialogController {
             truck.setYear(Integer.parseInt(txtYear.getText().trim()));
             truck.setCapacityKg(Integer.parseInt(txtCapacity.getText().trim()));
             truck.setPlateNumber(txtPlate.getText().trim());
+            truck.setSource(txtSource.getText().trim());  // Save source
             truck.setAvailable(chkAvailable.isSelected());
             truck.setNotes(txtNotes.getText());
 
@@ -108,6 +125,48 @@ public class EditTruckDialogController {
             System.err.println("❌ Error saving truck: " + e.getMessage());
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save truck: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Delete truck with confirmation
+     */
+    @FXML
+    private void handleDelete() {
+        System.out.println("🗑️ Delete button clicked for: " + truck.getDisplayName());
+
+        // Show confirmation dialog
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Delete Truck");
+        confirmation.setHeaderText("Delete " + truck.getDisplayName() + "?");
+        confirmation.setContentText(
+                "Are you sure you want to delete this truck?\n\n" +
+                        "VIN: " + truck.getVin() + "\n" +
+                        "Make/Model: " + truck.getMake() + " " + truck.getModel() + "\n\n" +
+                        "This action cannot be undone!"
+        );
+
+        // Customize buttons
+        ButtonType deleteButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmation.getButtonTypes().setAll(deleteButton, cancelButton);
+
+        // Wait for user response
+        Optional<ButtonType> result = confirmation.showAndWait();
+
+        if (result.isPresent() && result.get() == deleteButton) {
+            deleted = true;
+            System.out.println("✅ Truck deletion confirmed by user");
+
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION, "Truck Deleted",
+                    "Truck " + truck.getDisplayName() + " has been deleted successfully.");
+
+            // Close dialog
+            Stage stage = (Stage) txtVin.getScene().getWindow();
+            stage.close();
+        } else {
+            System.out.println("❌ Truck deletion cancelled by user");
         }
     }
 

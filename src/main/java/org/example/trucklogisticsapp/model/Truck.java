@@ -21,6 +21,7 @@ public class Truck {
     private double mileage;
     private int capacityKg;
     private String plateNumber;
+    private String source;  // NEW: Where truck was acquired from (dealer, brand, etc)
     private String notes;
 
     // Status fields
@@ -51,6 +52,7 @@ public class Truck {
         this.available = true;
         this.needsMaintenance = false;
         this.notes = "";
+        this.source = "";
     }
 
     /**
@@ -68,6 +70,7 @@ public class Truck {
         this.available = true;
         this.needsMaintenance = false;
         this.notes = "";
+        this.source = "";
     }
 
     // ========================================
@@ -136,6 +139,14 @@ public class Truck {
 
     public void setPlateNumber(String plateNumber) {
         this.plateNumber = plateNumber;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public boolean isAvailable() {
@@ -304,6 +315,7 @@ public class Truck {
                 ", mileage=" + mileage +
                 ", capacityKg=" + capacityKg +
                 ", plateNumber='" + plateNumber + '\'' +
+                ", source='" + source + '\'' +
                 ", available=" + available +
                 ", needsMaintenance=" + needsMaintenance +
                 ", maintenanceStatus='" + getMaintenanceStatus() + '\'' +

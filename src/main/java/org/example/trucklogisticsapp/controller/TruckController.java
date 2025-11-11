@@ -27,6 +27,7 @@ public class TruckController {
     @FXML private TableView<Truck> truckTable;
     @FXML private TableColumn<Truck, String> colTruckId;
     @FXML private TableColumn<Truck, String> colLicensePlate;
+    @FXML private TableColumn<Truck, String> colSource;  // NEW: Source column
     @FXML private TableColumn<Truck, String> colModel;
     @FXML private TableColumn<Truck, Integer> colCapacity;
     @FXML private TableColumn<Truck, String> colFuelMPG;
@@ -49,6 +50,22 @@ public class TruckController {
         // Setup columns
         colTruckId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colLicensePlate.setCellValueFactory(new PropertyValueFactory<>("plateNumber"));
+
+        // NEW: Source column
+        colSource.setCellValueFactory(new PropertyValueFactory<>("source"));
+        colSource.setCellFactory(col -> new TableCell<Truck, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item.isEmpty()) {
+                    setText("-");
+                    setStyle("-fx-text-fill: #9ca3af;");
+                } else {
+                    setText(item);
+                    setStyle("");
+                }
+            }
+        });
 
         // Model column - combine make and model
         colModel.setCellValueFactory(data -> {
@@ -132,27 +149,13 @@ public class TruckController {
             }
         });
 
-        // Actions column with icon buttons - NOW WITH MAINTENANCE BUTTON!
+        // Actions column with STYLED ICON BUTTONS
         colActions.setCellFactory(col -> new TableCell<Truck, Void>() {
-            private final Button btnEdit = new Button("✏️");
-            private final Button btnView = new Button("👁️");
-            private final Button btnMaintenance = new Button("⚙️");
+            private final Button btnEdit = createStyledButton("✏️", "#007bff", "Edit truck details");
+            private final Button btnView = createStyledButton("👁️", "#17a2b8", "View full details");
+            private final Button btnMaintenance = createStyledButton("⚙️", "#6f42c1", "Schedule maintenance");
 
             {
-                // Style buttons
-                String buttonStyle = "-fx-background-color: transparent; " +
-                        "-fx-cursor: hand; " +
-                        "-fx-font-size: 16px; " +
-                        "-fx-padding: 4;";
-
-                btnEdit.setStyle(buttonStyle);
-                btnView.setStyle(buttonStyle);
-                btnMaintenance.setStyle(buttonStyle);
-
-                btnEdit.setTooltip(new Tooltip("Edit truck"));
-                btnView.setTooltip(new Tooltip("View details"));
-                btnMaintenance.setTooltip(new Tooltip("Maintenance schedule"));
-
                 btnEdit.setOnAction(e -> {
                     Truck truck = getTableView().getItems().get(getIndex());
                     handleEditTruck(truck);
@@ -169,13 +172,38 @@ public class TruckController {
                 });
             }
 
+            private Button createStyledButton(String icon, String color, String tooltipText) {
+                Button btn = new Button(icon);
+                btn.setStyle(
+                        "-fx-background-color: " + color + "; " +
+                                "-fx-text-fill: white; " +
+                                "-fx-font-size: 14px; " +
+                                "-fx-min-width: 32px; " +
+                                "-fx-min-height: 32px; " +
+                                "-fx-background-radius: 5; " +
+                                "-fx-cursor: hand; " +
+                                "-fx-padding: 4;"
+                );
+
+                // Hover effect
+                btn.setOnMouseEntered(e -> btn.setStyle(
+                        btn.getStyle() + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);"
+                ));
+                btn.setOnMouseExited(e -> btn.setStyle(
+                        btn.getStyle().replace("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);", "")
+                ));
+
+                btn.setTooltip(new Tooltip(tooltipText));
+                return btn;
+            }
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    HBox buttons = new HBox(8, btnEdit, btnView, btnMaintenance);
+                    HBox buttons = new HBox(6, btnEdit, btnView, btnMaintenance);
                     buttons.setAlignment(Pos.CENTER_LEFT);
                     setGraphic(buttons);
                 }
@@ -186,30 +214,34 @@ public class TruckController {
     }
 
     private void loadSampleData() {
-        // Sample truck data matching the screenshot
+        // Sample truck data with sources
         Truck truck1 = new Truck("1HGBH41JXMN109186", "Freightliner", "Cascadia", 2022, 26000);
         truck1.setPlateNumber("ABC-1234");
         truck1.setMileage(125000);
-        truck1.setAvailable(false); // In Transit
+        truck1.setAvailable(false);
         truck1.setId("TRK-001");
+        truck1.setSource("Mercedes Dealer");
 
         Truck truck2 = new Truck("2HGFG12838H505034", "Volvo", "VNL", 2021, 24000);
         truck2.setPlateNumber("XYZ-5678");
         truck2.setMileage(98000);
         truck2.setAvailable(true);
         truck2.setId("TRK-002");
+        truck2.setSource("Auction");
 
         Truck truck3 = new Truck("3FAHP0JA3CR277616", "Peterbilt", "579", 2023, 28000);
         truck3.setPlateNumber("DEF-9012");
         truck3.setMileage(156000);
-        truck3.setAvailable(false); // Maintenance
+        truck3.setAvailable(false);
         truck3.setId("TRK-003");
+        truck3.setSource("Trade-In");
 
         Truck truck4 = new Truck("4HGBH41JXMN109187", "Kenworth", "T680", 2020, 25000);
         truck4.setPlateNumber("GHI-3456");
         truck4.setMileage(87000);
-        truck4.setAvailable(false); // Loading
+        truck4.setAvailable(false);
         truck4.setId("TRK-004");
+        truck4.setSource("Direct Purchase");
 
         truckList.addAll(truck1, truck2, truck3, truck4);
         System.out.println("📦 Loaded " + truckList.size() + " trucks");
@@ -230,23 +262,17 @@ public class TruckController {
         System.out.println("📊 Stats updated");
     }
 
-    /**
-     * Handle Add Truck button - NOW ACTUALLY OPENS DIALOG!
-     */
     @FXML
     private void handleAddTruck() {
         System.out.println("➕ Add truck clicked");
         try {
-            // Load the FXML
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/trucklogisticsapp/AddTruckDialog.fxml")
             );
             Parent root = loader.load();
 
-            // Get the controller
             AddTruckDialogController controller = loader.getController();
 
-            // Create and setup dialog stage
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Add New Truck");
             dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -254,13 +280,9 @@ public class TruckController {
             dialogStage.setScene(new Scene(root));
             dialogStage.setResizable(false);
 
-            // Pass the stage to controller
             controller.setDialogStage(dialogStage);
-
-            // Show and wait
             dialogStage.showAndWait();
 
-            // Get result
             Truck newTruck = controller.getResult();
             if (newTruck != null) {
                 truckList.add(newTruck);
@@ -277,22 +299,16 @@ public class TruckController {
         }
     }
 
-    /**
-     * Handle Edit Truck - NOW ACTUALLY OPENS DIALOG!
-     */
     private void handleEditTruck(Truck truck) {
         System.out.println("✏️ Edit truck: " + truck.getId());
         try {
-            // Load the FXML
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/trucklogisticsapp/EditTruckDialog.fxml")
             );
             Parent root = loader.load();
 
-            // Get the controller
             EditTruckDialogController controller = loader.getController();
 
-            // Create and setup dialog stage
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Edit Truck - " + truck.getVin());
             dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -300,13 +316,15 @@ public class TruckController {
             dialogStage.setScene(new Scene(root));
             dialogStage.setResizable(false);
 
-            // Set the truck to edit
             controller.setTruck(truck);
-
-            // Show and wait
             dialogStage.showAndWait();
 
-            // Refresh the table
+            // Check if truck was deleted
+            if (controller.wasDeleted()) {
+                truckList.remove(truck);
+                System.out.println("✅ Truck deleted from list");
+            }
+
             truckTable.refresh();
             updateStats();
             System.out.println("✅ Truck edit dialog closed");
@@ -319,26 +337,17 @@ public class TruckController {
         }
     }
 
-    /**
-     * Handle Maintenance Setup - OPENS CUSTOM DIALOG!
-     */
     private void handleMaintenanceTruck(Truck truck) {
         System.out.println("⚙️ Maintenance setup: " + truck.getId());
         try {
-            // Use the custom MaintenanceDialog class
             MaintenanceDialog dialog = new MaintenanceDialog(truck);
-
-            // Show and wait for result
             Optional<MaintenanceResult> result = dialog.showAndWait();
 
             if (result.isPresent()) {
                 MaintenanceResult maintenance = result.get();
-
-                // Update truck with new maintenance settings
                 truck.setLastMaintenanceDate(maintenance.lastMaintenanceDate);
                 truck.setMaintenanceIntervalMonths(maintenance.intervalMonths);
 
-                // Refresh the table to show updated status
                 truckTable.refresh();
                 updateStats();
 
@@ -362,44 +371,45 @@ public class TruckController {
         }
     }
 
-    /**
-     * Handle View Truck (placeholder for now)
-     */
     private void handleViewTruck(Truck truck) {
         System.out.println("👁️ View truck: " + truck.getId());
 
-        // Show truck details in alert
         String details = String.format(
-                "Truck Details\n\n" +
-                        "ID: %s\n" +
-                        "VIN: %s\n" +
-                        "Make/Model: %s %s\n" +
-                        "Year: %d\n" +
-                        "Capacity: %,d lbs\n" +
-                        "Plate: %s\n" +
-                        "Mileage: %,.0f\n" +
-                        "Status: %s\n" +
-                        "Maintenance: %s\n" +
-                        "Notes: %s",
+                "═══════════════════════════════\n" +
+                        "        TRUCK DETAILS\n" +
+                        "═══════════════════════════════\n\n" +
+                        "🚛 IDENTIFICATION\n" +
+                        "  • ID: %s\n" +
+                        "  • VIN: %s\n" +
+                        "  • License Plate: %s\n\n" +
+                        "📋 SPECIFICATIONS\n" +
+                        "  • Make/Model: %s %s\n" +
+                        "  • Year: %d\n" +
+                        "  • Capacity: %,d lbs\n" +
+                        "  • Current Mileage: %,.0f\n\n" +
+                        "📍 ACQUISITION\n" +
+                        "  • Source: %s\n\n" +
+                        "📊 STATUS\n" +
+                        "  • Available: %s\n" +
+                        "  • Maintenance: %s\n\n" +
+                        "📝 NOTES\n%s",
                 truck.getId(),
                 truck.getVin(),
+                truck.getPlateNumber() != null && !truck.getPlateNumber().isEmpty() ? truck.getPlateNumber() : "Not Set",
                 truck.getMake(),
                 truck.getModel(),
                 truck.getYear(),
                 truck.getCapacityKg(),
-                truck.getPlateNumber(),
                 truck.getMileage(),
-                truck.isAvailable() ? "Available" : "In Use",
+                truck.getSource() != null && !truck.getSource().isEmpty() ? truck.getSource() : "Not Specified",
+                truck.isAvailable() ? "Yes ✓" : "No (In Use)",
                 truck.getMaintenanceStatus(),
-                truck.getNotes() != null ? truck.getNotes() : "None"
+                truck.getNotes() != null && !truck.getNotes().isEmpty() ? "  " + truck.getNotes() : "  No notes"
         );
 
         showAlert(Alert.AlertType.INFORMATION, "Truck Details", details);
     }
 
-    /**
-     * Show alert dialog
-     */
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

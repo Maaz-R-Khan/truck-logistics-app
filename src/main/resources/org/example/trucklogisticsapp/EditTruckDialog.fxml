@@ -8,15 +8,20 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.example.trucklogisticsapp.controller.EditTruckDialogController"
       spacing="15"
-      prefWidth="550"
-      prefHeight="700"
+      prefWidth="600"
+      prefHeight="750"
       style="-fx-background-color: #f8f9fa; -fx-padding: 20;">
 
     <!-- Title -->
-    <HBox alignment="CENTER_LEFT"
+    <HBox alignment="CENTER_LEFT" spacing="10"
           style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
         <Label text="✏️ Edit Truck"
-               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"
+               HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnDelete"
+                text="🗑️ Delete Truck"
+                onAction="#handleDelete"
+                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 16; -fx-font-weight: bold; -fx-cursor: hand;"/>
     </HBox>
 
     <!-- Form Content -->
@@ -27,108 +32,134 @@
             <!-- Basic Information Section -->
             <VBox spacing="10"
                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
-                <Label text="Basic Information"
-                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Label text="🚛 Basic Information"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
                 <Separator/>
 
                 <!-- VIN (Read-only) -->
                 <VBox spacing="5">
-                    <Label text="VIN" style="-fx-font-weight: bold;"/>
+                    <Label text="VIN (Cannot be changed)" style="-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
                     <TextField fx:id="txtVin"
                                editable="false"
-                               style="-fx-background-color: #e9ecef; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                               style="-fx-background-color: #e9ecef; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
                 </VBox>
 
                 <!-- Make and Model -->
                 <HBox spacing="10">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Make *" style="-fx-font-weight: bold;"/>
+                        <Label text="Make *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <TextField fx:id="txtMake"
-                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
                     </VBox>
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Model *" style="-fx-font-weight: bold;"/>
+                        <Label text="Model *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <TextField fx:id="txtModel"
-                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
                     </VBox>
                 </HBox>
 
                 <!-- Year and Capacity -->
                 <HBox spacing="10">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Year *" style="-fx-font-weight: bold;"/>
+                        <Label text="Year *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <TextField fx:id="txtYear"
-                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
                     </VBox>
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Capacity (lbs) *" style="-fx-font-weight: bold;"/>
+                        <Label text="Capacity (lbs) *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <TextField fx:id="txtCapacity"
-                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
                     </VBox>
                 </HBox>
 
-                <!-- License Plate -->
-                <VBox spacing="5">
-                    <Label text="License Plate" style="-fx-font-weight: bold;"/>
-                    <TextField fx:id="txtPlate"
-                               style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;"/>
-                </VBox>
+                <!-- License Plate and Source/Dealer -->
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="License Plate" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtPlate"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Source / Dealer / Brand" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtSource"
+                                   promptText="e.g., Mercedes Dealer, Auction"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
 
-                <!-- Availability -->
-                <CheckBox fx:id="chkAvailable"
-                          text="Truck is currently available"
-                          style="-fx-font-size: 13px;"/>
+            <!-- Status Section -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <Label text="📊 Status"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Separator/>
+
+                <VBox spacing="12">
+                    <CheckBox fx:id="chkAvailable"
+                              style="-fx-font-size: 14px;">
+                        <graphic>
+                            <Label text="✓ Truck is currently available for assignments"
+                                   style="-fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                        </graphic>
+                    </CheckBox>
+                </VBox>
             </VBox>
 
             <!-- Maintenance Section -->
             <VBox spacing="10"
                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
                 <Label text="⚙️ Maintenance Settings"
-                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
                 <Separator/>
 
                 <HBox spacing="10">
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Last Maintenance Date" style="-fx-font-weight: bold;"/>
+                        <Label text="Last Maintenance Date" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <DatePicker fx:id="dateLastMaintenance"
                                     prefWidth="200"
                                     style="-fx-background-radius: 5;"/>
                     </VBox>
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Maintenance Interval (months)" style="-fx-font-weight: bold;"/>
+                        <Label text="Maintenance Interval (months)" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
                         <ComboBox fx:id="cmbMaintenanceInterval"
                                   prefWidth="200"
                                   style="-fx-background-radius: 5;"/>
                     </VBox>
                 </HBox>
+
+                <Label text="💡 Use the ⚙️ Maintenance button in the main table for advanced scheduling"
+                       style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic;"/>
             </VBox>
 
             <!-- Notes Section -->
             <VBox spacing="10"
                   style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
                 <Label text="📝 Additional Notes"
-                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
                 <Separator/>
                 <TextArea fx:id="txtNotes"
-                          prefRowCount="3"
+                          prefRowCount="4"
                           wrapText="true"
-                          style="-fx-background-radius: 5; -fx-border-radius: 5;"/>
+                          style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 13px;"/>
             </VBox>
 
         </VBox>
     </ScrollPane>
 
     <!-- Buttons -->
-    <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+    <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
         <Button text="Cancel"
                 onAction="#handleCancel"
-                prefWidth="100"
-                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                prefWidth="110"
+                prefHeight="40"
+                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;"/>
         <Button text="Save Changes"
                 onAction="#handleSave"
-                prefWidth="130"
+                prefWidth="140"
+                prefHeight="40"
                 defaultButton="true"
-                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;"/>
     </HBox>
 
 </VBox>
