@@ -1,84 +1,126 @@
 package org.example.trucklogisticsapp.controller;
 
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
-import java.io.IOException;
-
-/**
- * Main Layout Controller - Handles navigation between different screens
- */
 public class MainLayoutController {
 
-    @FXML
-    private StackPane contentArea;
+    @FXML private StackPane contentArea;
+    @FXML private Button btnDashboard;
+    @FXML private Button btnTrucks;
+    @FXML private Button btnDrivers;
+    @FXML private Button btnShipments;
+    @FXML private Button btnRoutePlanner;
+    @FXML private Button btnSettings;
 
     @FXML
     public void initialize() {
+        System.out.println("✅ MainLayoutController initialized");
         // Load dashboard by default
-        // showDashboard();
-
-        // For now, load Truck Management as default
-        showTrucks();
+        loadDashboard();
     }
 
     @FXML
-    private void showDashboard() {
-        loadView("Dashboard.fxml"); // Create this later
+    private void loadDashboard() {
+        System.out.println("📊 Loading Dashboard...");
+        setActiveButton(btnDashboard);
+        loadView("/org/example/trucklogisticsapp/Dashboard.fxml");
     }
 
     @FXML
-    private void showTrucks() {
-        loadView("TruckManagement.fxml");
+    private void loadTrucks() {
+        System.out.println("🚛 Loading Trucks...");
+        setActiveButton(btnTrucks);
+        loadView("/org/example/trucklogisticsapp/TruckManagement.fxml");
     }
 
     @FXML
-    private void showDrivers() {
-        loadView("DriverManagement.fxml");
+    private void loadDrivers() {
+        System.out.println("👤 Loading Drivers...");
+        setActiveButton(btnDrivers);
+        showPlaceholder("👤 Driver Management - Coming Soon!");
     }
 
     @FXML
-    private void showShipments() {
-        loadView("ShipmentManagement.fxml"); // Create this later
+    private void loadShipments() {
+        System.out.println("📦 Loading Shipments...");
+        setActiveButton(btnShipments);
+        showPlaceholder("📦 Shipment Management - Coming Soon!");
     }
 
     @FXML
-    private void showRoutePlanner() {
-        loadView("RoutePlanner.fxml"); // Create this later
+    private void loadRoutePlanner() {
+        System.out.println("🗺️ Loading Route Planner...");
+        setActiveButton(btnRoutePlanner);
+        showPlaceholder("🗺️ Route Planner - Coming Soon!");
     }
 
     @FXML
-    private void showSettings() {
-        loadView("Settings.fxml"); // Create this later
+    private void loadSettings() {
+        System.out.println("⚙️ Loading Settings...");
+        setActiveButton(btnSettings);
+        showPlaceholder("⚙️ Settings - Coming Soon!");
     }
 
-    /**
-     * Load a view into the content area
-     */
-    private void loadView(String fxmlFile) {
+    private void loadView(String fxmlPath) {
         try {
-            // Load from package path
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/trucklogisticsapp/" + fxmlFile));
-            Parent view = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Node view = loader.load();
 
-            // Clear current content and add new view
+            // Fade in animation
+            view.setOpacity(0);
             contentArea.getChildren().clear();
             contentArea.getChildren().add(view);
 
-            System.out.println("✅ Loaded: " + fxmlFile);
-        } catch (IOException e) {
-            System.err.println("❌ Failed to load: " + fxmlFile);
-            e.printStackTrace();
+            FadeTransition fade = new FadeTransition(Duration.millis(300), view);
+            fade.setFromValue(0.0);
+            fade.setToValue(1.0);
+            fade.play();
 
-            // Show error message in content area
-            javafx.scene.control.Label errorLabel = new javafx.scene.control.Label(
-                    "View not found: " + fxmlFile + "\n\nCreate this view to see content here."
-            );
-            errorLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6B7280;");
-            contentArea.getChildren().clear();
-            contentArea.getChildren().add(errorLabel);
+            System.out.println("✅ View loaded successfully: " + fxmlPath);
+
+        } catch (Exception e) {
+            System.err.println("❌ ERROR loading view: " + fxmlPath);
+            e.printStackTrace();
+            showError("Failed to load view: " + e.getMessage());
         }
+    }
+
+    private void setActiveButton(Button activeButton) {
+        // Remove active class from all buttons
+        btnDashboard.getStyleClass().remove("nav-button-active");
+        btnTrucks.getStyleClass().remove("nav-button-active");
+        btnDrivers.getStyleClass().remove("nav-button-active");
+        btnShipments.getStyleClass().remove("nav-button-active");
+        btnRoutePlanner.getStyleClass().remove("nav-button-active");
+        btnSettings.getStyleClass().remove("nav-button-active");
+
+        // Add active class to clicked button
+        if (!activeButton.getStyleClass().contains("nav-button-active")) {
+            activeButton.getStyleClass().add("nav-button-active");
+        }
+    }
+
+    private void showPlaceholder(String message) {
+        javafx.scene.control.Label label = new javafx.scene.control.Label(message);
+        label.setStyle("-fx-font-size: 24px; -fx-text-fill: #9CA3AF;");
+        javafx.scene.layout.StackPane pane = new javafx.scene.layout.StackPane(label);
+
+        contentArea.getChildren().clear();
+        contentArea.getChildren().add(pane);
+    }
+
+    private void showError(String message) {
+        javafx.scene.control.Label label = new javafx.scene.control.Label("❌ " + message);
+        label.setStyle("-fx-font-size: 18px; -fx-text-fill: #EF4444;");
+        javafx.scene.layout.StackPane pane = new javafx.scene.layout.StackPane(label);
+
+        contentArea.getChildren().clear();
+        contentArea.getChildren().add(pane);
     }
 }

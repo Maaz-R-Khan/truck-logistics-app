@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.trucklogisticsapp.controller.TruckController"
+      spacing="24"
+      style="-fx-background-color: #F5F7FA;"
+      stylesheets="@styles.css">
+
+    <padding>
+        <Insets top="32" right="32" bottom="32" left="32"/>
+    </padding>
+
+    <!-- Page Header -->
+    <VBox spacing="8">
+        <Text text="🚛 Truck Management" styleClass="page-title"/>
+        <Text text="Manage your fleet of trucks and monitor maintenance schedules" styleClass="page-subtitle"/>
+    </VBox>
+
+    <!-- Statistics Cards -->
+    <HBox spacing="20" VBox.vgrow="NEVER">
+        <!-- Total Trucks Card -->
+        <VBox styleClass="stat-card" spacing="12" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            <Text text="Total Trucks" styleClass="stat-label"/>
+            <Text fx:id="lblTotalTrucks" text="0" styleClass="stat-value-blue"/>
+            <Text text="In your fleet" styleClass="stat-description"/>
+        </VBox>
+
+        <!-- Available Trucks Card -->
+        <VBox styleClass="stat-card" spacing="12" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            <Text text="Available Trucks" styleClass="stat-label"/>
+            <Text fx:id="lblActiveTrucks" text="0" styleClass="stat-value-green"/>
+            <Text text="Ready for dispatch" styleClass="stat-description"/>
+        </VBox>
+
+        <!-- Maintenance Needed Card -->
+        <VBox styleClass="stat-card" spacing="12" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            <Text text="Maintenance Needed" styleClass="stat-label"/>
+            <Text fx:id="lblMaintenanceNeeded" text="0" styleClass="stat-value"/>
+            <Text text="Overdue or due soon" styleClass="stat-description"/>
+        </VBox>
+    </HBox>
+
+    <!-- Table Section -->
+    <VBox spacing="16" VBox.vgrow="ALWAYS" styleClass="table-container">
+        <padding>
+            <Insets top="24" right="24" bottom="24" left="24"/>
+        </padding>
+
+        <!-- Table Header with Add Button -->
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Text text="Fleet Overview" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+            <Button text="+ Add New Truck"
+                    onAction="#handleAddTruck"
+                    styleClass="btn-primary"/>
+        </HBox>
+
+        <!-- Table -->
+        <TableView fx:id="truckTable"
+                   VBox.vgrow="ALWAYS"
+                   styleClass="modern-table">
+            <columns>
+                <TableColumn fx:id="colVin" text="VIN" prefWidth="150" styleClass="table-column"/>
+                <TableColumn fx:id="colMake" text="Make" prefWidth="120" styleClass="table-column"/>
+                <TableColumn fx:id="colModel" text="Model" prefWidth="120" styleClass="table-column"/>
+                <TableColumn fx:id="colYear" text="Year" prefWidth="80" styleClass="table-column"/>
+                <TableColumn fx:id="colCapacity" text="Capacity (kg)" prefWidth="120" styleClass="table-column"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="120" styleClass="table-column"/>
+                <TableColumn fx:id="colMaintenance" text="Maintenance" prefWidth="140" styleClass="table-column"/>
+                <TableColumn fx:id="colActions" text="Actions" prefWidth="180" styleClass="table-column"/>
+            </columns>
+
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+    </VBox>
+
+</VBox>

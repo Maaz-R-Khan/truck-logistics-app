@@ -4,109 +4,77 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.shape.SVGPath?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.trucklogisticsapp.controller.MainLayoutController"
-            stylesheets="@styles.css" styleClass="main-container">
+            stylesheets="@styles.css"
+            styleClass="main-container">
 
-    <!-- Left Sidebar Navigation -->
+    <!-- Left Sidebar -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="280" spacing="0">
-            <padding>
-                <Insets top="32" right="20" bottom="32" left="20"/>
-            </padding>
-
-            <!-- Logo and App Name -->
-            <HBox spacing="12" alignment="CENTER_LEFT">
+        <VBox styleClass="sidebar" prefWidth="240">
+            <!-- Logo Section -->
+            <VBox styleClass="logo-section">
                 <padding>
-                    <Insets bottom="40"/>
+                    <Insets top="24" right="24" bottom="24" left="24"/>
                 </padding>
-                <!-- Truck Icon -->
-                <Region styleClass="logo-icon"/>
-                <VBox spacing="0">
-                    <Text text="LogiTruck" styleClass="logo-title"/>
-                    <Text text="Route Planner" styleClass="logo-subtitle"/>
-                </VBox>
-            </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Text text="🚚" style="-fx-font-size: 32px;"/>
+                    <VBox>
+                        <Text text="LogiTruck" styleClass="logo-title"/>
+                        <Text text="Route Planner" styleClass="logo-subtitle"/>
+                    </VBox>
+                </HBox>
+            </VBox>
 
             <!-- Navigation Menu -->
-            <VBox spacing="8" VBox.vgrow="ALWAYS">
-                <!-- Dashboard -->
-                <Button text="Dashboard" styleClass="nav-button, nav-button-active"
-                        onAction="#showDashboard" mnemonicParsing="false">
-                    <graphic>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Region styleClass="nav-icon-dashboard"/>
-                            <Text text="Dashboard"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+            <VBox styleClass="nav-menu" VBox.vgrow="ALWAYS" spacing="4">
+                <padding>
+                    <Insets top="12" right="12" bottom="12" left="12"/>
+                </padding>
 
-                <!-- Trucks -->
-                <Button text="Trucks" styleClass="nav-button"
-                        onAction="#showTrucks" mnemonicParsing="false">
-                    <graphic>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Region styleClass="nav-icon-truck"/>
-                            <Text text="Trucks"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                <Button fx:id="btnDashboard" text="📊  Dashboard"
+                        styleClass="nav-button,nav-button-active"
+                        onAction="#loadDashboard"
+                        maxWidth="Infinity"/>
 
-                <!-- Drivers -->
-                <Button text="Drivers" styleClass="nav-button"
-                        onAction="#showDrivers" mnemonicParsing="false">
-                    <graphic>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Region styleClass="nav-icon-drivers"/>
-                            <Text text="Drivers"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                <Button fx:id="btnTrucks" text="🚛  Trucks"
+                        styleClass="nav-button"
+                        onAction="#loadTrucks"
+                        maxWidth="Infinity"/>
 
-                <!-- Shipments -->
-                <Button text="Shipments" styleClass="nav-button"
-                        onAction="#showShipments" mnemonicParsing="false">
-                    <graphic>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Region styleClass="nav-icon-shipments"/>
-                            <Text text="Shipments"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                <Button fx:id="btnDrivers" text="👤  Drivers"
+                        styleClass="nav-button"
+                        onAction="#loadDrivers"
+                        maxWidth="Infinity"/>
 
-                <!-- Route Planner -->
-                <Button text="Route Planner" styleClass="nav-button"
-                        onAction="#showRoutePlanner" mnemonicParsing="false">
-                    <graphic>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Region styleClass="nav-icon-route"/>
-                            <Text text="Route Planner"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                <Button fx:id="btnShipments" text="📦  Shipments"
+                        styleClass="nav-button"
+                        onAction="#loadShipments"
+                        maxWidth="Infinity"/>
+
+                <Button fx:id="btnRoutePlanner" text="🗺️  Route Planner"
+                        styleClass="nav-button"
+                        onAction="#loadRoutePlanner"
+                        maxWidth="Infinity"/>
 
                 <!-- Spacer -->
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <!-- Settings at bottom -->
-                <Button text="Settings" styleClass="nav-button"
-                        onAction="#showSettings" mnemonicParsing="false">
-                    <graphic>
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Region styleClass="nav-icon-settings"/>
-                            <Text text="Settings"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+                <Button fx:id="btnSettings" text="⚙️  Settings"
+                        styleClass="nav-button"
+                        onAction="#loadSettings"
+                        maxWidth="Infinity"/>
             </VBox>
         </VBox>
     </left>
 
-    <!-- Main Content Area (will be swapped based on navigation) -->
+    <!-- Main Content Area -->
     <center>
-        <StackPane fx:id="contentArea" styleClass="content-area"/>
+        <StackPane fx:id="contentArea" styleClass="content-area">
+            <!-- Views will be loaded here dynamically -->
+        </StackPane>
     </center>
 
 </BorderPane>
