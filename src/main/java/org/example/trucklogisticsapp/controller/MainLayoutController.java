@@ -20,7 +20,7 @@ public class MainLayoutController {
 
     @FXML
     public void initialize() {
-        System.out.println("✅ MainLayoutController initialized");
+        System.out.println("✅MainLayoutController initialized");
         // Load dashboard by default
         loadDashboard();
     }
