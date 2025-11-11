@@ -14,13 +14,14 @@ module org.example.trucklogisticsapp {
     // requires com.google.gson;
 
     // CRITICAL: Open your packages to JavaFX FXML
-    opens org.example.trucklogisticsapp to javafx.fxml;
-    opens org.example.trucklogisticsapp.controller to javafx.fxml;  // ← THIS WAS MISSING!
+    // ← THIS WAS MISSING!
     opens org.example.trucklogisticsapp.model to javafx.base;       // ← For TableView binding
 
     // Export packages
     exports org.example.trucklogisticsapp;
     exports org.example.trucklogisticsapp.controller;
     exports org.example.trucklogisticsapp.model;
+    opens org.example.trucklogisticsapp.controller to javafx.base, javafx.fxml;
+    opens org.example.trucklogisticsapp to javafx.base, javafx.fxml;
 
 }

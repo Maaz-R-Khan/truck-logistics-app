@@ -5,97 +5,109 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.trucklogisticsapp.controller.TruckController"
-            stylesheets="@styles.css" styleClass="main-container">
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.trucklogisticsapp.controller.TruckController"
+      spacing="24"
+      styleClass="page-container">
 
-    <!-- Main Content Area -->
-    <center>
-        <VBox spacing="24" styleClass="content-area">
-            <padding>
-                <Insets top="32" right="40" bottom="32" left="40"/>
-            </padding>
+    <padding>
+        <Insets top="32" right="32" bottom="32" left="32"/>
+    </padding>
 
-            <!-- Header -->
-            <HBox alignment="CENTER_LEFT" spacing="20">
-                <VBox spacing="4" HBox.hgrow="ALWAYS">
-                    <Text text="Truck Management" styleClass="page-title"/>
-                    <Text text="Manage your fleet of trucks and monitor their status" styleClass="page-subtitle"/>
-                </VBox>
-                <Button text="+ Add New Truck" onAction="#handleAdd" styleClass="primary-button" mnemonicParsing="false"/>
-            </HBox>
-
-            <!-- Stats Cards -->
-            <HBox spacing="20" alignment="CENTER_LEFT">
-                <!-- Total Trucks Card -->
-                <VBox styleClass="stat-card" spacing="12" HBox.hgrow="ALWAYS">
-                    <padding>
-                        <Insets top="20" right="24" bottom="20" left="24"/>
-                    </padding>
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <Text text="Total Trucks" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
-                        <Region styleClass="icon-truck"/>
-                    </HBox>
-                    <Text fx:id="lblTotalTrucks" text="4" styleClass="stat-value"/>
-                    <Text text="Active fleet size" styleClass="stat-description"/>
-                </VBox>
-
-                <!-- Available Card -->
-                <VBox styleClass="stat-card" spacing="12" HBox.hgrow="ALWAYS">
-                    <padding>
-                        <Insets top="20" right="24" bottom="20" left="24"/>
-                    </padding>
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <Text text="Available" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
-                        <Region styleClass="icon-eye"/>
-                    </HBox>
-                    <Text fx:id="lblAvailable" text="1" styleClass="stat-value-green"/>
-                    <Text text="Ready for assignment" styleClass="stat-description"/>
-                </VBox>
-
-                <!-- Average Capacity Card -->
-                <VBox styleClass="stat-card" spacing="12" HBox.hgrow="ALWAYS">
-                    <padding>
-                        <Insets top="20" right="24" bottom="20" left="24"/>
-                    </padding>
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <Text text="Avg Capacity" styleClass="stat-label" HBox.hgrow="ALWAYS"/>
-                        <Region styleClass="icon-weight"/>
-                    </HBox>
-                    <Text fx:id="lblAvgCapacity" text="25,750" styleClass="stat-value"/>
-                    <Text text="lbs per truck" styleClass="stat-description"/>
-                </VBox>
-            </HBox>
-
-            <!-- Fleet Details Section -->
-            <VBox spacing="16" styleClass="table-section">
-                <padding>
-                    <Insets top="24" right="24" bottom="24" left="24"/>
-                </padding>
-
-                <VBox spacing="8">
-                    <Text text="Fleet Details" styleClass="section-title"/>
-                    <Text text="Complete list of all trucks in your fleet" styleClass="section-subtitle"/>
-                </VBox>
-
-                <!-- Table -->
-                <TableView fx:id="truckTable" styleClass="data-table" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colTruckId" text="Truck ID" prefWidth="100" styleClass="table-column"/>
-                        <TableColumn fx:id="colPlate" text="License Plate" prefWidth="120" styleClass="table-column"/>
-                        <TableColumn fx:id="colModel" text="Model" prefWidth="180" styleClass="table-column"/>
-                        <TableColumn fx:id="colCapacity" text="Capacity" prefWidth="110" styleClass="table-column"/>
-                        <TableColumn fx:id="colFuelMpg" text="Fuel MPG" prefWidth="90" styleClass="table-column"/>
-                        <TableColumn fx:id="colStatus" text="Status" prefWidth="120" styleClass="table-column"/>
-                        <TableColumn fx:id="colDriver" text="Current Driver" prefWidth="130" styleClass="table-column"/>
-                        <TableColumn fx:id="colMileage" text="Mileage" prefWidth="100" styleClass="table-column"/>
-                        <TableColumn fx:id="colActions" text="Actions" prefWidth="80" styleClass="table-column"/>
-                    </columns>
-                    <placeholder>
-                        <Label text="No trucks available" styleClass="table-placeholder"/>
-                    </placeholder>
-                </TableView>
-            </VBox>
+    <!-- Page Header -->
+    <HBox alignment="CENTER_LEFT">
+        <VBox HBox.hgrow="ALWAYS" spacing="8">
+            <Text text="Truck Management" styleClass="page-title"/>
+            <Text text="Manage your fleet of trucks and monitor their status" styleClass="page-subtitle"/>
         </VBox>
-    </center>
-</BorderPane>
+        <Button text="+ Add New Truck" styleClass="btn-primary" onAction="#handleAddTruck"/>
+    </HBox>
+
+    <!-- Stats Cards -->
+    <HBox spacing="20">
+        <!-- Total Trucks -->
+        <VBox styleClass="dashboard-stat-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <StackPane styleClass="stat-icon-gray">
+                    <Text text="🚛" style="-fx-font-size: 24px;"/>
+                </StackPane>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Text text="Total Trucks" styleClass="stat-label-small"/>
+                    <Text fx:id="lblTotalTrucks" text="4" styleClass="stat-value-large"/>
+                    <Text text="Active fleet size" styleClass="stat-description-small"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- Available -->
+        <VBox styleClass="dashboard-stat-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <StackPane styleClass="stat-icon-green">
+                    <Text text="👁️" style="-fx-font-size: 24px;"/>
+                </StackPane>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Text text="Available" styleClass="stat-label-small"/>
+                    <Text fx:id="lblAvailableTrucks" text="1" styleClass="stat-value-large"/>
+                    <Text text="Ready for assignment" styleClass="stat-description-small"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- Average Capacity -->
+        <VBox styleClass="dashboard-stat-card" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <StackPane styleClass="stat-icon-blue">
+                    <Text text="📊" style="-fx-font-size: 24px;"/>
+                </StackPane>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Text text="Avg Capacity" styleClass="stat-label-small"/>
+                    <Text fx:id="lblAvgCapacity" text="25,750" styleClass="stat-value-large"/>
+                    <Text text="lbs per truck" styleClass="stat-description-small"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <!-- Fleet Details Table -->
+    <VBox styleClass="content-card" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="24" right="24" bottom="24" left="24"/>
+        </padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Text text="Fleet Details" styleClass="section-title"/>
+        </HBox>
+
+        <Text text="Complete list of all trucks in your fleet" styleClass="section-subtitle">
+            <VBox.margin>
+                <Insets top="4" bottom="20"/>
+            </VBox.margin>
+        </Text>
+
+        <TableView fx:id="truckTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+            <columns>
+                <TableColumn fx:id="colTruckId" text="Truck ID" prefWidth="100"/>
+                <TableColumn fx:id="colLicensePlate" text="License Plate" prefWidth="120"/>
+                <TableColumn fx:id="colSource" text="Source" prefWidth="120" />
+                <TableColumn fx:id="colModel" text="Model" prefWidth="180"/>
+                <TableColumn fx:id="colCapacity" text="Capacity" prefWidth="120"/>
+                <TableColumn fx:id="colFuelMPG" text="Fuel MPG" prefWidth="100"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="130"/>
+                <TableColumn fx:id="colCurrentDriver" text="Current Driver" prefWidth="150"/>
+                <TableColumn fx:id="colMileage" text="Mileage" prefWidth="120"/>
+                <TableColumn fx:id="colActions" text="Actions" prefWidth="120"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+</VBox>
