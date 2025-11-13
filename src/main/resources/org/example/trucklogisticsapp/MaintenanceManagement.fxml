@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.trucklogisticsapp.controller.MaintenanceController">
+
+    <center>
+        <TableView fx:id="maintenanceTable" prefHeight="400" prefWidth="800">
+            <columns>
+                <TableColumn fx:id="colRecordId" text="Record ID" prefWidth="100"/>
+                <TableColumn fx:id="colTruckId" text="Truck ID" prefWidth="100"/>
+                <TableColumn fx:id="colType" text="Type" prefWidth="150"/>
+                <TableColumn fx:id="colScheduled" text="Scheduled Date" prefWidth="150"/>
+                <TableColumn fx:id="colCost" text="Cost ($)" prefWidth="100"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="120"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Button text="Add" fx:id="btnAdd" onAction="#onAddRecord"/>
+            <Button text="Edit" fx:id="btnEdit" onAction="#onEditRecord"/>
+            <Button text="Delete" fx:id="btnDelete" onAction="#onDeleteRecord"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
