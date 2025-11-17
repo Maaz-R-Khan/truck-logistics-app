@@ -11,22 +11,19 @@ import javafx.util.Duration;
 public class MainLayoutController {
 
     @FXML private StackPane contentArea;
-
     @FXML private Button btnDashboard;
     @FXML private Button btnTrucks;
     @FXML private Button btnDrivers;
     @FXML private Button btnShipments;
     @FXML private Button btnRoutePlanner;
-    @FXML private Button btnMaintenance;
     @FXML private Button btnSettings;
 
     @FXML
     public void initialize() {
         System.out.println("✅ MainLayoutController initialized");
-        loadDashboard(); // Load default view
+        // Load dashboard by default
+        loadDashboard();
     }
-
-    // ------------------------- VIEW LOADERS ---------------------------- //
 
     @FXML
     private void loadDashboard() {
@@ -64,31 +61,21 @@ public class MainLayoutController {
     }
 
     @FXML
-    private void loadMaintenance() {
-        System.out.println("🛠️ Loading Maintenance...");
-        setActiveButton(btnMaintenance);
-        System.out.println(getClass().getResource("/org/example/trucklogisticsapp/MaintenanceManagement.fxml"));
-        loadView("/org/example/trucklogisticsapp/MaintenanceManagement.fxml");
-    }
-
-
-    @FXML
     private void loadSettings() {
         System.out.println("⚙️ Loading Settings...");
         setActiveButton(btnSettings);
         showPlaceholder("⚙️ Settings - Coming Soon!");
     }
 
-    // ------------------------- VIEW HANDLING ---------------------------- //
-
     private void loadView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Node view = loader.load();
 
-            // Fade animation
+            // Fade in animation
             view.setOpacity(0);
-            contentArea.getChildren().setAll(view);
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(view);
 
             FadeTransition fade = new FadeTransition(Duration.millis(300), view);
             fade.setFromValue(0.0);
@@ -100,46 +87,40 @@ public class MainLayoutController {
         } catch (Exception e) {
             System.err.println("❌ ERROR loading view: " + fxmlPath);
             e.printStackTrace();
-            showError("Failed to load: " + fxmlPath);
+            showError("Failed to load view: " + e.getMessage());
         }
     }
 
-    // ------------------------- ACTIVE BUTTON STATE ---------------------------- //
-
     private void setActiveButton(Button activeButton) {
+        // Remove active class from all buttons
+        btnDashboard.getStyleClass().remove("nav-button-active");
+        btnTrucks.getStyleClass().remove("nav-button-active");
+        btnDrivers.getStyleClass().remove("nav-button-active");
+        btnShipments.getStyleClass().remove("nav-button-active");
+        btnRoutePlanner.getStyleClass().remove("nav-button-active");
+        btnSettings.getStyleClass().remove("nav-button-active");
 
-        // Remove highlight from all buttons
-        Button[] buttons = {
-                btnDashboard, btnTrucks, btnDrivers,
-                btnShipments, btnRoutePlanner, btnMaintenance, btnSettings
-        };
-
-        for (Button btn : buttons) {
-            btn.getStyleClass().remove("nav-button-active");
-        }
-
-        // Add highlight to clicked button
+        // Add active class to clicked button
         if (!activeButton.getStyleClass().contains("nav-button-active")) {
             activeButton.getStyleClass().add("nav-button-active");
         }
     }
 
-    // ------------------------- PLACEHOLDER HELPERS ---------------------------- //
-
     private void showPlaceholder(String message) {
         javafx.scene.control.Label label = new javafx.scene.control.Label(message);
         label.setStyle("-fx-font-size: 24px; -fx-text-fill: #9CA3AF;");
+        javafx.scene.layout.StackPane pane = new javafx.scene.layout.StackPane(label);
 
-        StackPane pane = new StackPane(label);
-        contentArea.getChildren().setAll(pane);
+        contentArea.getChildren().clear();
+        contentArea.getChildren().add(pane);
     }
 
     private void showError(String message) {
         javafx.scene.control.Label label = new javafx.scene.control.Label("❌ " + message);
         label.setStyle("-fx-font-size: 18px; -fx-text-fill: #EF4444;");
+        javafx.scene.layout.StackPane pane = new javafx.scene.layout.StackPane(label);
 
-        StackPane pane = new StackPane(label);
-        contentArea.getChildren().setAll(pane);
+        contentArea.getChildren().clear();
+        contentArea.getChildren().add(pane);
     }
-
 }
