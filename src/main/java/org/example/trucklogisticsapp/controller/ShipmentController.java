@@ -222,7 +222,7 @@ public class ShipmentController {
     public void openCreateShipmentDialog() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/create-shipment-dialog.fxml"));
+                    getClass().getResource("/org/example/trucklogisticsapp/AddShipmentDialog.fxml"));
             Parent root = loader.load();
 
           AddShipmentController controller = loader.getController();
