@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.trucklogisticsapp.controller.AddShipmentController"
+      stylesheets="@ShipmentDashboard.css"
+      styleClass="dialog-root"
+      spacing="0">
+
+    <children>
+        <VBox styleClass="dialog-card" spacing="18">
+            <children>
+
+                <!-- HEADER -->
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <VBox spacing="4">
+                            <children>
+                                <Label text="Create New Shipment"
+                                       styleClass="dialog-title"/>
+                                <Label text="Enter the details for the new shipment to add it to the system."
+                                       styleClass="dialog-subtitle"/>
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="✕"
+                                onAction="#onCancel"
+                                styleClass="ghost-icon-btn"/>
+                    </children>
+                </HBox>
+
+                <!-- FORM GRID -->
+                <GridPane hgap="16" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
+
+                    <!-- Origin / Destination -->
+                    <children>
+                        <Label text="Origin" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                               styleClass="field-label"/>
+                        <TextField fx:id="originField" promptText="Los Angeles, CA"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                   styleClass="text-input"/>
+
+                        <Label text="Destination" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                               styleClass="field-label"/>
+                        <TextField fx:id="destinationField" promptText="Phoenix, AZ"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                   styleClass="text-input"/>
+
+                        <!-- Weight / Value -->
+                        <Label text="Weight (lbs)" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                               styleClass="field-label"/>
+                        <TextField fx:id="weightField" promptText="15000"
+                                   GridPane.rowIndex="3" GridPane.columnIndex="0"
+                                   styleClass="text-input"/>
+
+                        <Label text="Value ($)" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                               styleClass="field-label"/>
+                        <TextField fx:id="valueField" promptText="50000"
+                                   GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                   styleClass="text-input"/>
+
+                        <!-- Priority -->
+                        <Label text="Priority" GridPane.rowIndex="4" GridPane.columnIndex="0"
+                               styleClass="field-label"/>
+                        <ComboBox fx:id="priorityCombo"
+                                  GridPane.rowIndex="5" GridPane.columnIndex="0"
+                                  promptText="Select priority"/>
+
+                        <!-- Spacer in grid (right side of priority row) -->
+                        <Pane GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                        <!-- Pickup / Delivery dates -->
+                        <Label text="Pickup Date" GridPane.rowIndex="6" GridPane.columnIndex="0"
+                               styleClass="field-label"/>
+                        <DatePicker fx:id="pickupDatePicker"
+                                    promptText="mm/dd/yyyy"
+                                    GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+
+                        <Label text="Delivery Date" GridPane.rowIndex="6" GridPane.columnIndex="1"
+                               styleClass="field-label"/>
+                        <DatePicker fx:id="deliveryDatePicker"
+                                    promptText="mm/dd/yyyy"
+                                    GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <!-- Customer -->
+                        <Label text="Customer Name" GridPane.rowIndex="8" GridPane.columnIndex="0"
+                               styleClass="field-label"/>
+                        <TextField fx:id="customerField" promptText="ABC Electronics"
+                                   GridPane.rowIndex="9" GridPane.columnIndex="0"
+                                   GridPane.columnSpan="2"
+                                   styleClass="text-input"/>
+
+                        <!-- Notes -->
+                        <Label text="Notes" GridPane.rowIndex="10" GridPane.columnIndex="0"
+                               styleClass="field-label"/>
+                        <TextArea fx:id="notesArea"
+                                  promptText="Any special instructions or notes..."
+                                  GridPane.rowIndex="11" GridPane.columnIndex="0"
+                                  GridPane.columnSpan="2"
+                                  prefRowCount="3"/>
+                    </children>
+                </GridPane>
+
+                <!-- FOOTER BUTTONS -->
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                    <children>
+                        <Button text="Cancel"
+                                onAction="#onCancel"
+                                styleClass="secondary-btn"/>
+                        <Button text="Create Shipment"
+                                onAction="#onCreateShipment"
+                                styleClass="primary-btn"/>
+                    </children>
+                </HBox>
+
+            </children>
+        </VBox>
+    </children>
+</VBox>

@@ -1,6 +1,7 @@
 package org.example.trucklogisticsapp.controller;
 
 import javafx.animation.FadeTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -50,7 +51,7 @@ public class MainLayoutController {
     private void loadShipments() {
         System.out.println("📦 Loading Shipments...");
         setActiveButton(btnShipments);
-        showPlaceholder("📦 Shipment Management - Coming Soon!");
+        loadView("/org/example/trucklogisticsapp/ShipmentManagement.fxml");
     }
 
     @FXML
@@ -122,5 +123,8 @@ public class MainLayoutController {
 
         contentArea.getChildren().clear();
         contentArea.getChildren().add(pane);
+    }
+
+    public void loadMaintenance(ActionEvent actionEvent) {
     }
 }

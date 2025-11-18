@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.trucklogisticsapp.controller.ShipmentController"
+            stylesheets="@ShipmentDashboard.css">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox styleClass="header-bar">
+            <children>
+                <VBox spacing="4">
+                    <children>
+                        <Label text="Shipment Management"
+                               styleClass="header-title"/>
+                        <Label text="Track and manage all shipments and their delivery status"
+                               styleClass="header-subtitle"/>
+                    </children>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="+  Create Shipment"
+                        fx:id="createShipmentBtn"
+                        onAction="#openCreateShipmentDialog"
+                        styleClass="primary-btn"/>
+            </children>
+        </HBox>
+    </top>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <VBox spacing="24">
+            <padding>
+                <Insets top="8" right="32" bottom="32" left="32"/>
+            </padding>
+
+            <!-- STATS CARDS -->
+            <HBox spacing="16">
+                <children>
+                    <VBox styleClass="stat-card">
+                        <children>
+                            <Label text="Total Shipments" styleClass="card-title"/>
+                            <Label text="5" styleClass="card-number"/>
+                            <Label text="All time" styleClass="card-caption"/>
+                        </children>
+                    </VBox>
+
+                    <VBox styleClass="stat-card">
+                        <children>
+                            <Label text="In Transit" styleClass="card-title"/>
+                            <Label text="1" styleClass="card-number"/>
+                            <Label text="Currently moving" styleClass="card-caption"/>
+                        </children>
+                    </VBox>
+
+                    <VBox styleClass="stat-card">
+                        <children>
+                            <Label text="Pending" styleClass="card-title"/>
+                            <Label text="2" styleClass="card-number"/>
+                            <Label text="Awaiting assignment" styleClass="card-caption"/>
+                        </children>
+                    </VBox>
+
+                    <VBox styleClass="stat-card">
+                        <children>
+                            <Label text="Total Value" styleClass="card-title"/>
+                            <Label text="/$270K" styleClass="card-number"/>
+                            <Label text="Cargo value" styleClass="card-caption"/>
+                        </children>
+                    </VBox>
+                </children>
+            </HBox>
+
+            <!-- TABLE SECTION -->
+            <VBox spacing="12">
+                <children>
+                    <VBox spacing="4">
+                        <children>
+                            <Label text="Shipment Details"
+                                   styleClass="section-title"/>
+                            <Label text="Complete list of all shipments and their current status"
+                                   styleClass="section-subtitle"/>
+                        </children>
+                    </VBox>
+
+                    <TableView fx:id="shipmentTable" prefHeight="480"
+                               styleClass="card-table">
+                        <columns>
+                            <TableColumn fx:id="idColumn" text="Shipment ID" prefWidth="90"/>
+
+                            <TableColumn fx:id="routeColumn" text="Route" prefWidth="200"/>
+
+                            <TableColumn fx:id="customerColumn" text="Customer" prefWidth="160"/>
+
+                            <TableColumn fx:id="weightColumn" text="Weight" prefWidth="120"/>
+
+                            <TableColumn fx:id="valueColumn" text="Value" prefWidth="110"/>
+
+                            <TableColumn fx:id="priorityColumn" text="Priority" prefWidth="120"/>
+
+                            <TableColumn fx:id="statusColumn" text="Status" prefWidth="120"/>
+
+                            <TableColumn fx:id="assignmentColumn" text="Assignment" prefWidth="150"/>
+
+                            <TableColumn fx:id="deliveryColumn" text="Delivery Date" prefWidth="150"/>
+
+                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+                </children>
+            </VBox>
+
+        </VBox>
+    </center>
+</BorderPane>
