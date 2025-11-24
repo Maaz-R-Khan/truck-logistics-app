@@ -27,10 +27,10 @@ public class FirebaseConfig {
             FirebaseApp.initializeApp(options);
             initialized = true;
 
-            System.out.println("✅ Firebase initialized successfully.");
+            System.out.println("Firebase initialized successfully.");
 
         } catch (IOException e) {
-            System.err.println("❌ Failed to initialize Firebase:");
+            System.err.println("Failed to initialize Firebase:");
             e.printStackTrace();
         }
     }
