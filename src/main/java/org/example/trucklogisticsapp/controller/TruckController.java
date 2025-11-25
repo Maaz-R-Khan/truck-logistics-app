@@ -1,7 +1,11 @@
 package org.example.trucklogisticsapp.controller;
 
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.firebase.internal.NonNull;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -15,7 +19,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.trucklogisticsapp.model.MaintenanceResult;
 import org.example.trucklogisticsapp.model.Truck;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
+import org.example.trucklogisticsapp.controller.FirestoreContext;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class TruckController {
@@ -214,37 +224,46 @@ public class TruckController {
     }
 
     private void loadSampleData() {
-        // Sample truck data with sources
-        Truck truck1 = new Truck("1HGBH41JXMN109186", "Freightliner", "Cascadia", 2022, 26000);
-        truck1.setPlateNumber("ABC-1234");
-        truck1.setMileage(125000);
-        truck1.setAvailable(false);
-        truck1.setId("TRK-001");
-        truck1.setSource("Mercedes Dealer");
+        // Load trucks from Firestore on a background thread
+        new Thread(() -> {
+            try {
+                Firestore db = FirestoreContext.getDB();
 
-        Truck truck2 = new Truck("2HGFG12838H505034", "Volvo", "VNL", 2021, 24000);
-        truck2.setPlateNumber("XYZ-5678");
-        truck2.setMileage(98000);
-        truck2.setAvailable(true);
-        truck2.setId("TRK-002");
-        truck2.setSource("Auction");
+                // Query all documents in the "trucks" collection
+                ApiFuture<QuerySnapshot> future = db.collection("trucks").get();
+                QuerySnapshot snapshot = future.get();
 
-        Truck truck3 = new Truck("3FAHP0JA3CR277616", "Peterbilt", "579", 2023, 28000);
-        truck3.setPlateNumber("DEF-9012");
-        truck3.setMileage(156000);
-        truck3.setAvailable(false);
-        truck3.setId("TRK-003");
-        truck3.setSource("Trade-In");
+                // Temporary list to hold loaded trucks
+                ObservableList<Truck> loadedTrucks = FXCollections.observableArrayList();
 
-        Truck truck4 = new Truck("4HGBH41JXMN109187", "Kenworth", "T680", 2020, 25000);
-        truck4.setPlateNumber("GHI-3456");
-        truck4.setMileage(87000);
-        truck4.setAvailable(false);
-        truck4.setId("TRK-004");
-        truck4.setSource("Direct Purchase");
+                for (QueryDocumentSnapshot doc : snapshot.getDocuments()) {
+                    // Map Firestore document to Truck POJO
+                    Truck truck = doc.toObject(Truck.class);
 
-        truckList.addAll(truck1, truck2, truck3, truck4);
-        System.out.println("📦 Loaded " + truckList.size() + " trucks");
+                    // Ensure the Truck has its Firestore document ID set
+                    if (truck.getId() == null || truck.getId().isEmpty()) {
+                        truck.setId(doc.getId());
+                    }
+
+                    loadedTrucks.add(truck);
+                }
+
+                // Update UI on the JavaFX Application Thread
+                javafx.application.Platform.runLater(() -> {
+                    truckList.clear();
+                    truckList.addAll(loadedTrucks);
+                    updateStats();
+                    System.out.println("📦 Loaded " + loadedTrucks.size() + " trucks from Firestore");
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                javafx.application.Platform.runLater(() ->
+                        showAlert(Alert.AlertType.ERROR, "Firestore Error",
+                                "Could not load trucks from Firestore:\n" + e.getMessage())
+                );
+            }
+        }).start();
     }
 
     private void updateStats() {
@@ -285,10 +304,14 @@ public class TruckController {
 
             Truck newTruck = controller.getResult();
             if (newTruck != null) {
+                // 1) Update UI list
                 truckList.add(newTruck);
                 truckTable.refresh();
                 updateStats();
-                System.out.println("✅ Truck added successfully: " + newTruck.getVin());
+                System.out.println("✅ Truck added locally: " + newTruck.getVin());
+
+                // 2) Save to Firestore (in background)
+                saveTruckToFirestore(newTruck);
             }
 
         } catch (Exception e) {
@@ -297,6 +320,37 @@ public class TruckController {
             showAlert(Alert.AlertType.ERROR, "Error",
                     "Could not open Add Truck dialog:\n" + e.getMessage());
         }
+    }
+
+    private void saveTruckToFirestore(Truck truck) {
+        new Thread(() -> {
+            try {
+                Firestore db = FirestoreContext.getDB();
+
+                // Use truck ID as the document ID (or generate one if null)
+                String docId = (truck.getId() != null && !truck.getId().isEmpty())
+                        ? truck.getId()
+                        : db.collection("trucks").document().getId();
+
+                if (truck.getId() == null || truck.getId().isEmpty()) {
+                    truck.setId(docId); // keep UI in sync with Firestore ID
+                }
+
+                ApiFuture<WriteResult> future =
+                        db.collection("trucks").document(docId).set(truck);
+
+                WriteResult result = future.get();
+                System.out.println("✅ Truck saved to Firestore at: " + result.getUpdateTime());
+
+            } catch (Exception ex) {
+                System.err.println("❌ Failed to save truck to Firestore");
+                ex.printStackTrace();
+                javafx.application.Platform.runLater(() ->
+                        showAlert(Alert.AlertType.ERROR, "Firestore Error",
+                                "Could not save truck to Firestore:\n" + ex.getMessage())
+                );
+            }
+        }).start();
     }
 
     private void handleEditTruck(Truck truck) {
