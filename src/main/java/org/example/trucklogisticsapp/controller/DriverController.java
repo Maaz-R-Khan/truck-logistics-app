@@ -1,590 +1,406 @@
 package org.example.trucklogisticsapp.controller;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.trucklogisticsapp.model.Driver;
 
-import java.io.File;
+import java.time.LocalDate;
 import java.util.Optional;
 
-/**
- * Driver Controller - Manages driver data and UI
- * Corresponds to DriverManagement.fxml
- */
 public class DriverController {
 
-    // Table and columns
-    @FXML private TableView<Driver> driverTable;
-    @FXML private TableColumn<Driver, String> colDriver;
-    @FXML private TableColumn<Driver, String> colContact;
-    @FXML private TableColumn<Driver, String> colLicense;
-    @FXML private TableColumn<Driver, String> colStatus;
-    @FXML private TableColumn<Driver, String> colRating;
-    @FXML private TableColumn<Driver, Integer> colTrips;
-    @FXML private TableColumn<Driver, String> colLocation;
-
-    // Stats labels
     @FXML private Text lblTotalDrivers;
     @FXML private Text lblAvailableDrivers;
-    @FXML private Text lblOnRoute;
     @FXML private Text lblAvgRating;
 
-    // Form fields (for Add/Edit dialog - optional)
-    @FXML private TextField txtName;
-    @FXML private TextField txtLicense;
-    @FXML private TextField txtExpiry;
-    @FXML private TextField txtPhone;
-    @FXML private TextField txtAddress;
-    @FXML private TextArea txtNotes;
-    @FXML private CheckBox chkActive;
-    @FXML private Label lblPhoto;
-    @FXML private Label lblResume;
+    @FXML private TableView<Driver> driverTable;
+    @FXML private TableColumn<Driver, String> colDriverId;
+    @FXML private TableColumn<Driver, String> colName;
+    @FXML private TableColumn<Driver, String> colLicense;
+    @FXML private TableColumn<Driver, String> colPhone;
+    @FXML private TableColumn<Driver, String> colStatus;
+    @FXML private TableColumn<Driver, String> colCompliance;
+    @FXML private TableColumn<Driver, String> colEndorsements;
+    @FXML private TableColumn<Driver, Void> colActions;
 
-    // Buttons
-    @FXML private Button btnAdd;
-    @FXML private Button btnUpdate;
-    @FXML private Button btnDelete;
-    @FXML private Button btnClear;
-    @FXML private Button btnSelectPhoto;
-    @FXML private Button btnSelectResume;
+    private ObservableList<Driver> driverList = FXCollections.observableArrayList();
 
-    // Data
-    private ObservableList<Driver> driverList;
-    private Driver selectedDriver;
-    private String selectedPhotoPath = "";
-    private String selectedResumePath = "";
-
-    // Sample data for display
-    private String[] sampleStatuses = {"On Route", "Available", "On Route", "Off Duty"};
-    private String[] sampleLocations = {"Phoenix, AZ", "Denver, CO", "Seattle, WA", "Dallas, TX"};
-    private double[] sampleRatings = {4.8, 4.9, 4.6, 4.7};
-    private int[] sampleTrips = {156, 203, 142, 89};
-
-    /**
-     * Initialize the controller after FXML is loaded
-     */
     @FXML
     public void initialize() {
-        // Initialize driver list
-        driverList = FXCollections.observableArrayList();
-
-        // Set up table columns
-        setupTableColumns();
-
-        // Bind table to data
-        driverTable.setItems(driverList);
-
-        // Add selection listener
-        driverTable.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSelection, newSelection) -> {
-                    if (newSelection != null) {
-                        populateFields(newSelection);
-                    }
-                }
-        );
-
-        // Load sample data
+        System.out.println("✅ DriverController initialized");
+        setupTable();
         loadSampleData();
         updateStats();
     }
 
-    /**
-     * Set up all table columns with custom cell factories
-     */
-    private void setupTableColumns() {
-        // Driver column with avatar and name
-        colDriver.setCellFactory(column -> new TableCell<>() {
+    private void setupTable() {
+        // Setup columns
+        colDriverId.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+        // Name column - show full name
+        colName.setCellValueFactory(data -> {
+            Driver driver = data.getValue();
+            return new javafx.beans.property.SimpleStringProperty(driver.getFullName());
+        });
+
+        colLicense.setCellValueFactory(new PropertyValueFactory<>("licenseNumber"));
+        colPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
+
+        // Status column with badges
+        colStatus.setCellValueFactory(data -> {
+            Driver driver = data.getValue();
+            return new javafx.beans.property.SimpleStringProperty(
+                    driver.isAvailable() ? "Available" : "Assigned"
+            );
+        });
+        colStatus.setCellFactory(col -> new TableCell<Driver, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                if (empty || item == null) {
                     setGraphic(null);
                 } else {
-                    Driver driver = getTableView().getItems().get(getIndex());
-
-                    // Create initials circle
-                    String initials = getInitials(driver.getName());
-                    Label initialsLabel = new Label(initials);
-                    initialsLabel.setStyle(
-                            "-fx-background-color: #E5E7EB; " +
-                                    "-fx-text-fill: #4B5563; " +
-                                    "-fx-background-radius: 50%; " +
-                                    "-fx-min-width: 40px; " +
-                                    "-fx-min-height: 40px; " +
-                                    "-fx-alignment: center; " +
-                                    "-fx-font-weight: 600; " +
-                                    "-fx-font-size: 14px;"
-                    );
-
-                    // Create name and ID text
-                    VBox nameBox = new VBox(2);
-                    Text name = new Text(driver.getName());
-                    name.setStyle("-fx-font-weight: 600; -fx-fill: #111827;");
-                    Text id = new Text("DRV-" + driver.getId().substring(0, 3).toUpperCase());
-                    id.setStyle("-fx-fill: #6B7280; -fx-font-size: 12px;");
-                    nameBox.getChildren().addAll(name, id);
-
-                    HBox container = new HBox(12, initialsLabel, nameBox);
-                    container.setAlignment(Pos.CENTER_LEFT);
-                    setGraphic(container);
-                }
-            }
-        });
-
-        // Contact column with email and phone
-        colContact.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    Driver driver = getTableView().getItems().get(getIndex());
-                    VBox contactBox = new VBox(2);
-
-                    String email = driver.getName().toLowerCase().replace(" ", ".") + "@logitruck.com";
-                    Text emailText = new Text(email);
-                    emailText.setStyle("-fx-fill: #111827; -fx-font-size: 13px;");
-
-                    String phone = driver.getPhone() != null && !driver.getPhone().isEmpty()
-                            ? driver.getPhone() : "+1 (555) 123-4567";
-                    Text phoneText = new Text("📞 " + phone);
-                    phoneText.setStyle("-fx-fill: #6B7280; -fx-font-size: 12px;");
-
-                    contactBox.getChildren().addAll(emailText, phoneText);
-                    setGraphic(contactBox);
-                }
-            }
-        });
-
-        // License column with number and expiry
-        colLicense.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    Driver driver = getTableView().getItems().get(getIndex());
-                    VBox licenseBox = new VBox(2);
-
-                    Text licenseNum = new Text(driver.getLicenseNumber());
-                    licenseNum.setStyle("-fx-fill: #111827; -fx-font-weight: 600;");
-
-                    String expiry = driver.getLicenseExpiry() != null && !driver.getLicenseExpiry().isEmpty()
-                            ? driver.getLicenseExpiry() : "2025-06-15";
-                    Text expiryText = new Text("📅 Exp: " + expiry);
-                    expiryText.setStyle("-fx-fill: #6B7280; -fx-font-size: 12px;");
-
-                    licenseBox.getChildren().addAll(licenseNum, expiryText);
-                    setGraphic(licenseBox);
-                }
-            }
-        });
-
-        // Status column with colored badge
-        colStatus.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String status, boolean empty) {
-                super.updateItem(status, empty);
-                if (empty || status == null) {
-                    setGraphic(null);
-                } else {
-                    Label badge = new Label(status);
-                    badge.getStyleClass().add("status-badge");
-
-                    switch (status) {
-                        case "Available":
-                            badge.getStyleClass().add("status-available");
-                            break;
-                        case "On Route":
-                            badge.getStyleClass().add("status-on-route");
-                            break;
-                        case "Off Duty":
-                            badge.getStyleClass().add("status-off-duty");
-                            break;
+                    Label badge = new Label(item);
+                    if (item.equals("Available")) {
+                        badge.getStyleClass().add("status-badge-green");
+                    } else {
+                        badge.getStyleClass().add("status-badge-blue");
                     }
-
                     setGraphic(badge);
-                    setAlignment(Pos.CENTER_LEFT);
                 }
             }
         });
 
-        // Rating column with star
-        colRating.setCellFactory(column -> new TableCell<>() {
+        // Compliance column with color coding
+        colCompliance.setCellValueFactory(data -> {
+            Driver driver = data.getValue();
+            return new javafx.beans.property.SimpleStringProperty(driver.getComplianceStatus());
+        });
+        colCompliance.setCellFactory(col -> new TableCell<Driver, String>() {
             @Override
-            protected void updateItem(String rating, boolean empty) {
-                super.updateItem(rating, empty);
-                if (empty || rating == null) {
-                    setText(null);
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
                     setGraphic(null);
                 } else {
-                    Label ratingLabel = new Label("⭐ " + rating);
-                    ratingLabel.setStyle("-fx-text-fill: #111827; -fx-font-weight: 600;");
-                    setGraphic(ratingLabel);
+                    Label badge = new Label(item);
+                    if (item.equals("Compliant")) {
+                        badge.getStyleClass().add("status-badge-green");
+                    } else if (item.contains("Expiring")) {
+                        badge.getStyleClass().add("status-badge-yellow");
+                    } else {
+                        badge.getStyleClass().add("status-badge-red");
+                    }
+                    setGraphic(badge);
                 }
             }
         });
 
-        // Location column with pin icon
-        colLocation.setCellFactory(column -> new TableCell<>() {
+        // Endorsements column
+        colEndorsements.setCellValueFactory(data -> {
+            Driver driver = data.getValue();
+            return new javafx.beans.property.SimpleStringProperty(driver.getEndorsements());
+        });
+
+        // Actions column with styled buttons
+        colActions.setCellFactory(col -> new TableCell<Driver, Void>() {
+            private final Button btnEdit = createStyledButton("✏️", "#007bff", "Edit driver details");
+            private final Button btnView = createStyledButton("👁️", "#17a2b8", "View full details");
+            private final Button btnAssign = createStyledButton("🚛", "#28a745", "Assign to truck");
+
+            {
+                btnEdit.setOnAction(e -> {
+                    Driver driver = getTableView().getItems().get(getIndex());
+                    handleEditDriver(driver);
+                });
+
+                btnView.setOnAction(e -> {
+                    Driver driver = getTableView().getItems().get(getIndex());
+                    handleViewDriver(driver);
+                });
+
+                btnAssign.setOnAction(e -> {
+                    Driver driver = getTableView().getItems().get(getIndex());
+                    handleAssignDriver(driver);
+                });
+            }
+
+            private Button createStyledButton(String icon, String color, String tooltipText) {
+                Button btn = new Button(icon);
+                btn.setStyle(
+                        "-fx-background-color: " + color + "; " +
+                                "-fx-text-fill: white; " +
+                                "-fx-font-size: 14px; " +
+                                "-fx-min-width: 32px; " +
+                                "-fx-min-height: 32px; " +
+                                "-fx-background-radius: 5; " +
+                                "-fx-cursor: hand; " +
+                                "-fx-padding: 4;"
+                );
+
+                btn.setOnMouseEntered(e -> btn.setStyle(
+                        btn.getStyle() + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);"
+                ));
+                btn.setOnMouseExited(e -> btn.setStyle(
+                        btn.getStyle().replace("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);", "")
+                ));
+
+                btn.setTooltip(new Tooltip(tooltipText));
+                return btn;
+            }
+
             @Override
-            protected void updateItem(String location, boolean empty) {
-                super.updateItem(location, empty);
-                if (empty || location == null) {
-                    setText(null);
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
                     setGraphic(null);
                 } else {
-                    Label locLabel = new Label("📍 " + location);
-                    locLabel.setStyle("-fx-text-fill: #6B7280;");
-                    setGraphic(locLabel);
+                    HBox buttons = new HBox(6, btnEdit, btnView, btnAssign);
+                    buttons.setAlignment(Pos.CENTER_LEFT);
+                    setGraphic(buttons);
                 }
             }
         });
 
-        // Set cell value factories
-        colDriver.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getName()));
-
-        colContact.setCellValueFactory(cellData ->
-                new SimpleStringProperty("contact"));
-
-        colLicense.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getLicenseNumber()));
-
-        colStatus.setCellValueFactory(cellData -> {
-            int index = driverList.indexOf(cellData.getValue());
-            return new SimpleStringProperty(sampleStatuses[index % sampleStatuses.length]);
-        });
-
-        colRating.setCellValueFactory(cellData -> {
-            int index = driverList.indexOf(cellData.getValue());
-            return new SimpleStringProperty(String.valueOf(sampleRatings[index % sampleRatings.length]));
-        });
-
-        colTrips.setCellValueFactory(cellData -> {
-            int index = driverList.indexOf(cellData.getValue());
-            return new javafx.beans.property.SimpleIntegerProperty(
-                    sampleTrips[index % sampleTrips.length]).asObject();
-        });
-
-        colLocation.setCellValueFactory(cellData -> {
-            int index = driverList.indexOf(cellData.getValue());
-            return new SimpleStringProperty(sampleLocations[index % sampleLocations.length]);
-        });
+        driverTable.setItems(driverList);
     }
 
-    /**
-     * Add a new driver
-     */
-    @FXML
-    public void handleAdd() {
-        // Check if form fields exist (optional dialog mode)
-        if (txtName == null || txtLicense == null) {
-            // Show dialog for adding driver
-            showAddDriverDialog();
-            return;
-        }
+    private void loadSampleData() {
+        // Sample driver data
+        Driver driver1 = new Driver("John", "Smith", "D1234567", "California", "555-123-4567", "john.smith@email.com");
+        driver1.setId("DRV-001");
+        driver1.setDateOfBirth(LocalDate.of(1985, 5, 15));
+        driver1.setHireDate(LocalDate.of(2020, 6, 1));
+        driver1.setLicenseClass("Class A");
+        driver1.setLicenseExpiry(LocalDate.of(2027, 12, 31));
+        driver1.setMedicalCertExpiry(LocalDate.of(2025, 8, 15));
+        driver1.setHazmatEndorsement(true);
+        driver1.setTankersEndorsement(true);
+        driver1.setAvailable(true);
+        driver1.setRating(4.8);
+        driver1.setTotalTrips(245);
+        driver1.setTotalMiles(125000);
 
-        if (!validateInput()) {
-            return;
-        }
+        Driver driver2 = new Driver("Jane", "Doe", "D7654321", "Texas", "555-987-6543", "jane.doe@email.com");
+        driver2.setId("DRV-002");
+        driver2.setDateOfBirth(LocalDate.of(1990, 8, 20));
+        driver2.setHireDate(LocalDate.of(2021, 3, 15));
+        driver2.setLicenseClass("Class A");
+        driver2.setLicenseExpiry(LocalDate.of(2028, 6, 30));
+        driver2.setMedicalCertExpiry(LocalDate.of(2026, 2, 28));
+        driver2.setHazmatEndorsement(true);
+        driver2.setAvailable(false);
+        driver2.setAssignedTruckId("TRK-001");
+        driver2.setRating(4.9);
+        driver2.setTotalTrips(189);
+        driver2.setTotalMiles(98000);
 
-        // Create new driver
-        Driver driver = new Driver(
-                txtLicense.getText().trim(),
-                txtName.getText().trim()
-        );
+        Driver driver3 = new Driver("Bob", "Johnson", "D9876543", "Florida", "555-456-7890", "bob.johnson@email.com");
+        driver3.setId("DRV-003");
+        driver3.setDateOfBirth(LocalDate.of(1982, 3, 10));
+        driver3.setHireDate(LocalDate.of(2019, 1, 10));
+        driver3.setLicenseClass("Class A");
+        driver3.setLicenseExpiry(LocalDate.of(2026, 9, 15));
+        driver3.setMedicalCertExpiry(LocalDate.of(2025, 12, 1));
+        driver3.setDoublesEndorsement(true);
+        driver3.setAvailable(true);
+        driver3.setRating(4.7);
+        driver3.setTotalTrips(312);
+        driver3.setTotalMiles(156000);
 
-        // Set optional fields
-        driver.setLicenseExpiry(txtExpiry.getText().trim());
-        driver.setPhone(txtPhone.getText().trim());
-        driver.setAddress(txtAddress.getText().trim());
-        driver.setBackgroundNotes(txtNotes.getText());
-        driver.setActive(chkActive.isSelected());
-        driver.setPhotoPath(selectedPhotoPath);
-        driver.setResumePath(selectedResumePath);
+        Driver driver4 = new Driver("Alice", "Brown", "D4567890", "New York", "555-234-5678", "alice.brown@email.com");
+        driver4.setId("DRV-004");
+        driver4.setDateOfBirth(LocalDate.of(1988, 11, 25));
+        driver4.setHireDate(LocalDate.of(2022, 7, 1));
+        driver4.setLicenseClass("Class B");
+        driver4.setLicenseExpiry(LocalDate.of(2027, 3, 31));
+        driver4.setMedicalCertExpiry(LocalDate.of(2025, 9, 30));
+        driver4.setAvailable(false);
+        driver4.setAssignedTruckId("TRK-003");
+        driver4.setRating(4.6);
+        driver4.setTotalTrips(156);
+        driver4.setTotalMiles(87000);
 
-        // Add to list
-        driverList.add(driver);
-
-        // Clear form
-        clearFields();
-
-        // Update stats
-        updateStats();
-
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Driver added successfully!");
+        driverList.addAll(driver1, driver2, driver3, driver4);
+        System.out.println("📦 Loaded " + driverList.size() + " drivers");
     }
 
-    /**
-     * Update selected driver
-     */
-    @FXML
-    public void handleUpdate() {
-        if (selectedDriver == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a driver to update.");
-            return;
-        }
+    private void updateStats() {
+        lblTotalDrivers.setText(String.valueOf(driverList.size()));
 
-        if (!validateInput()) {
-            return;
-        }
+        long available = driverList.stream().filter(Driver::isAvailable).count();
+        lblAvailableDrivers.setText(String.valueOf(available));
 
-        // Update driver properties
-        selectedDriver.setName(txtName.getText().trim());
-        selectedDriver.setLicenseNumber(txtLicense.getText().trim());
-        selectedDriver.setLicenseExpiry(txtExpiry.getText().trim());
-        selectedDriver.setPhone(txtPhone.getText().trim());
-        selectedDriver.setAddress(txtAddress.getText().trim());
-        selectedDriver.setBackgroundNotes(txtNotes.getText());
-        selectedDriver.setActive(chkActive.isSelected());
-        selectedDriver.setPhotoPath(selectedPhotoPath);
-        selectedDriver.setResumePath(selectedResumePath);
+        double avgRating = driverList.stream()
+                .mapToDouble(Driver::getRating)
+                .average()
+                .orElse(0);
+        lblAvgRating.setText(String.format("%.1f", avgRating));
 
-        // Refresh table
-        driverTable.refresh();
-
-        clearFields();
-        updateStats();
-
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Driver updated successfully!");
+        System.out.println("📊 Stats updated");
     }
 
-    /**
-     * Delete selected driver
-     */
     @FXML
-    public void handleDelete() {
-        if (selectedDriver == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a driver to delete.");
-            return;
+    private void handleAddDriver() {
+        System.out.println("➕ Add driver clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/trucklogisticsapp/AddDriverDialog.fxml")
+            );
+            Parent root = loader.load();
+
+            AddDriverDialogController controller = loader.getController();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Add New Driver");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(driverTable.getScene().getWindow());
+            dialogStage.setScene(new Scene(root));
+            dialogStage.setResizable(false);
+
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
+
+            Driver newDriver = controller.getResult();
+            if (newDriver != null) {
+                driverList.add(newDriver);
+                driverTable.refresh();
+                updateStats();
+                System.out.println("✅ Driver added successfully: " + newDriver.getFullName());
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error opening Add Driver dialog: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "Could not open Add Driver dialog:\n" + e.getMessage());
         }
+    }
 
-        // Confirm deletion
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirm Delete");
-        confirm.setHeaderText("Delete Driver");
-        confirm.setContentText("Are you sure you want to delete " + selectedDriver.getName() + "?");
+    private void handleEditDriver(Driver driver) {
+        System.out.println("✏️ Edit driver: " + driver.getId());
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/trucklogisticsapp/EditDriverDialog.fxml")
+            );
+            Parent root = loader.load();
 
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            driverList.remove(selectedDriver);
-            clearFields();
+            EditDriverDialogController controller = loader.getController();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit Driver - " + driver.getFullName());
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(driverTable.getScene().getWindow());
+            dialogStage.setScene(new Scene(root));
+            dialogStage.setResizable(false);
+
+            controller.setDriver(driver);
+            dialogStage.showAndWait();
+
+            if (controller.wasDeleted()) {
+                driverList.remove(driver);
+                System.out.println("✅ Driver deleted from list");
+            }
+
+            driverTable.refresh();
             updateStats();
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Driver deleted successfully!");
+            System.out.println("✅ Driver edit dialog closed");
+
+        } catch (Exception e) {
+            System.err.println("❌ Error opening Edit Driver dialog: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "Could not open Edit Driver dialog:\n" + e.getMessage());
         }
     }
 
-    /**
-     * Clear all input fields
-     */
-    @FXML
-    public void handleClear() {
-        clearFields();
-    }
+    private void handleViewDriver(Driver driver) {
+        System.out.println("👁️ View driver: " + driver.getId());
 
-    /**
-     * Select photo for driver
-     */
-    @FXML
-    public void handleSelectPhoto() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Driver Photo");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        String details = String.format(
+                "═══════════════════════════════\n" +
+                        "       DRIVER DETAILS\n" +
+                        "═══════════════════════════════\n\n" +
+                        "👤 PERSONAL INFORMATION\n" +
+                        "  • ID: %s\n" +
+                        "  • Name: %s\n" +
+                        "  • Email: %s\n" +
+                        "  • Phone: %s\n" +
+                        "  • Age: %d years\n\n" +
+                        "🪪 LICENSE INFORMATION\n" +
+                        "  • License Number: %s\n" +
+                        "  • State: %s\n" +
+                        "  • Class: %s\n" +
+                        "  • Expiration: %s\n" +
+                        "  • Medical Card Exp: %s\n" +
+                        "  • Compliance: %s\n\n" +
+                        "📋 ENDORSEMENTS\n" +
+                        "  • %s\n\n" +
+                        "📊 STATUS\n" +
+                        "  • Available: %s\n" +
+                        "  • Assigned Truck: %s\n" +
+                        "  • Years of Service: %d\n\n" +
+                        "⭐ PERFORMANCE\n" +
+                        "  • Rating: %.1f / 5.0\n" +
+                        "  • Total Trips: %d\n" +
+                        "  • Total Miles: %,.0f\n\n" +
+                        "📝 NOTES\n%s",
+                driver.getId(),
+                driver.getFullName(),
+                driver.getEmail() != null && !driver.getEmail().isEmpty() ? driver.getEmail() : "Not Set",
+                driver.getPhone(),
+                driver.getAge(),
+                driver.getLicenseNumber(),
+                driver.getLicenseState(),
+                driver.getLicenseClass(),
+                driver.getLicenseExpiry() != null ? driver.getLicenseExpiry().toString() : "Not Set",
+                driver.getMedicalCertExpiry() != null ? driver.getMedicalCertExpiry().toString() : "Not Set",
+                driver.getComplianceStatus(),
+                driver.getEndorsements(),
+                driver.isAvailable() ? "Yes ✓" : "No (Assigned)",
+                driver.getAssignedTruckId() != null ? driver.getAssignedTruckId() : "None",
+                driver.getYearsOfService(),
+                driver.getRating(),
+                driver.getTotalTrips(),
+                driver.getTotalMiles(),
+                driver.getNotes() != null && !driver.getNotes().isEmpty() ? "  " + driver.getNotes() : "  No notes"
         );
 
-        File file = fileChooser.showOpenDialog(btnSelectPhoto.getScene().getWindow());
-        if (file != null) {
-            selectedPhotoPath = file.getAbsolutePath();
-            lblPhoto.setText("Photo: " + file.getName());
-        }
+        showAlert(Alert.AlertType.INFORMATION, "Driver Details", details);
     }
 
-    /**
-     * Select resume for driver
-     */
-    @FXML
-    public void handleSelectResume() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Driver Resume");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf"),
-                new FileChooser.ExtensionFilter("Word Documents", "*.doc", "*.docx"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
-        );
+    private void handleAssignDriver(Driver driver) {
+        System.out.println("🚛 Assign driver to truck: " + driver.getId());
 
-        File file = fileChooser.showOpenDialog(btnSelectResume.getScene().getWindow());
-        if (file != null) {
-            selectedResumePath = file.getAbsolutePath();
-            lblResume.setText("Resume: " + file.getName());
+        if (!driver.isAvailable()) {
+            showAlert(Alert.AlertType.WARNING, "Driver Not Available",
+                    "Driver " + driver.getFullName() + " is currently assigned to truck: " +
+                            driver.getAssignedTruckId());
+            return;
         }
+
+        // This would open a truck selection dialog in a real app
+        showAlert(Alert.AlertType.INFORMATION, "Assign Driver",
+                "Truck assignment feature coming soon!\n\n" +
+                        "This will allow you to assign " + driver.getFullName() + " to an available truck.");
     }
 
-    /**
-     * Populate form fields with selected driver data
-     */
-    private void populateFields(Driver driver) {
-        selectedDriver = driver;
-
-        if (txtName != null) {
-            txtName.setText(driver.getName());
-            txtLicense.setText(driver.getLicenseNumber());
-            txtExpiry.setText(driver.getLicenseExpiry());
-            txtPhone.setText(driver.getPhone());
-            txtAddress.setText(driver.getAddress());
-            txtNotes.setText(driver.getBackgroundNotes());
-            chkActive.setSelected(driver.isActive());
-
-            selectedPhotoPath = driver.getPhotoPath() != null ? driver.getPhotoPath() : "";
-            selectedResumePath = driver.getResumePath() != null ? driver.getResumePath() : "";
-
-            if (!selectedPhotoPath.isEmpty()) {
-                lblPhoto.setText("Photo: " + new File(selectedPhotoPath).getName());
-            } else {
-                lblPhoto.setText("No photo selected");
-            }
-
-            if (!selectedResumePath.isEmpty()) {
-                lblResume.setText("Resume: " + new File(selectedResumePath).getName());
-            } else {
-                lblResume.setText("No resume selected");
-            }
-        }
-    }
-
-    /**
-     * Clear all form fields
-     */
-    private void clearFields() {
-        selectedDriver = null;
-
-        if (txtName != null) {
-            txtName.clear();
-            txtLicense.clear();
-            txtExpiry.clear();
-            txtPhone.clear();
-            txtAddress.clear();
-            txtNotes.clear();
-            chkActive.setSelected(true);
-            selectedPhotoPath = "";
-            selectedResumePath = "";
-            lblPhoto.setText("No photo selected");
-            lblResume.setText("No resume selected");
-        }
-
-        driverTable.getSelectionModel().clearSelection();
-    }
-
-    /**
-     * Validate input fields
-     */
-    private boolean validateInput() {
-        if (txtName == null) return true; // Skip validation if form not present
-
-        if (txtName.getText().trim().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "Name is required.");
-            return false;
-        }
-        if (txtLicense.getText().trim().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "License number is required.");
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Show alert dialog
-     */
-    private void showAlert(Alert.AlertType type, String title, String message) {
+    private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText(content);
         alert.showAndWait();
-    }
-
-    /**
-     * Show dialog for adding a new driver
-     */
-    private void showAddDriverDialog() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Add Driver");
-        alert.setHeaderText("Add New Driver");
-        alert.setContentText("This would open a dialog to add a new driver.\n\n" +
-                "Create a separate FXML dialog for the add/edit form.");
-        alert.showAndWait();
-    }
-
-    /**
-     * Get initials from name
-     */
-    private String getInitials(String name) {
-        if (name == null || name.isEmpty()) return "?";
-        String[] parts = name.split(" ");
-        if (parts.length >= 2) {
-            return (parts[0].charAt(0) + "" + parts[1].charAt(0)).toUpperCase();
-        }
-        return name.substring(0, Math.min(2, name.length())).toUpperCase();
-    }
-
-    /**
-     * Load sample data matching Figma design
-     */
-    private void loadSampleData() {
-        String[] names = {"John Smith", "Sarah Johnson", "Mike Wilson", "Lisa Brown"};
-        String[] licenses = {"DL123456789", "DL987654321", "DL456789123", "DL789123456"};
-        String[] phones = {"+1 (555) 123-4567", "+1 (555) 234-5678", "+1 (555) 345-6789", "+1 (555) 456-7890"};
-        String[] expiries = {"2025-06-15", "2025-12-20", "2024-08-30", "2025-03-10"};
-
-        for (int i = 0; i < names.length; i++) {
-            Driver driver = new Driver(licenses[i], names[i]);
-            driver.setPhone(phones[i]);
-            driver.setLicenseExpiry(expiries[i]);
-            driver.setActive(!sampleStatuses[i].equals("Off Duty"));
-            driverList.add(driver);
-        }
-    }
-
-    /**
-     * Update statistics display
-     */
-    private void updateStats() {
-        if (lblTotalDrivers != null) {
-            lblTotalDrivers.setText(String.valueOf(driverList.size()));
-
-            long available = 0;
-            long onRoute = 0;
-
-            for (int i = 0; i < driverList.size(); i++) {
-                String status = sampleStatuses[i % sampleStatuses.length];
-                if (status.equals("Available")) available++;
-                if (status.equals("On Route")) onRoute++;
-            }
-
-            lblAvailableDrivers.setText(String.valueOf(available));
-            lblOnRoute.setText(String.valueOf(onRoute));
-            lblAvgRating.setText("4.8");
-        }
-    }
-
-    // Getters for accessing data from other controllers
-    public ObservableList<Driver> getDriverList() {
-        return driverList;
-    }
-
-    public Driver getSelectedDriver() {
-        return driverTable.getSelectionModel().getSelectedItem();
     }
 }

@@ -1,7 +1,6 @@
 package org.example.trucklogisticsapp.controller;
 
 import javafx.animation.FadeTransition;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -18,6 +17,7 @@ public class MainLayoutController {
     @FXML private Button btnShipments;
     @FXML private Button btnRoutePlanner;
     @FXML private Button btnSettings;
+    @FXML private Button btnMaintenance;   // ✅ NEW
 
     @FXML
     public void initialize() {
@@ -44,7 +44,7 @@ public class MainLayoutController {
     private void loadDrivers() {
         System.out.println("👤 Loading Drivers...");
         setActiveButton(btnDrivers);
-        showPlaceholder("👤 Driver Management - Coming Soon!");
+        loadView("/org/example/trucklogisticsapp/DriverManagement.fxml");
     }
 
     @FXML
@@ -68,9 +68,21 @@ public class MainLayoutController {
         showPlaceholder("⚙️ Settings - Coming Soon!");
     }
 
+    @FXML
+    private void loadMaintenance() {        // ✅ FIXED
+        System.out.println("🛠️ Loading Maintenance...");
+        setActiveButton(btnMaintenance);
+        loadView("/org/example/trucklogisticsapp/MaintenanceManagement.fxml");
+    }
+
     private void loadView(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            var url = getClass().getResource(fxmlPath);
+            if (url == null) {
+                throw new IllegalStateException("FXML not found on classpath: " + fxmlPath);
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
             Node view = loader.load();
 
             // Fade in animation
@@ -100,6 +112,7 @@ public class MainLayoutController {
         btnShipments.getStyleClass().remove("nav-button-active");
         btnRoutePlanner.getStyleClass().remove("nav-button-active");
         btnSettings.getStyleClass().remove("nav-button-active");
+        btnMaintenance.getStyleClass().remove("nav-button-active"); // ✅ added
 
         // Add active class to clicked button
         if (!activeButton.getStyleClass().contains("nav-button-active")) {
@@ -123,8 +136,5 @@ public class MainLayoutController {
 
         contentArea.getChildren().clear();
         contentArea.getChildren().add(pane);
-    }
-
-    public void loadMaintenance(ActionEvent actionEvent) {
     }
 }
