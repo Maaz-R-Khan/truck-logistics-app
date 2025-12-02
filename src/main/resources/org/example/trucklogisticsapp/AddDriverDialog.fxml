@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.trucklogisticsapp.controller.AddDriverDialogController"
+      spacing="15"
+      prefWidth="600"
+      prefHeight="750"
+      style="-fx-background-color: #f8f9fa; -fx-padding: 20;">
+
+    <!-- Title -->
+    <HBox alignment="CENTER_LEFT"
+          style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+        <Label text="➕ Add New Driver"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+    </HBox>
+
+    <!-- Error Label -->
+    <Label fx:id="lblError"
+           wrapText="true"
+           visible="false"
+           style="-fx-background-color: #fff3cd; -fx-text-fill: #856404; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #ffc107; -fx-border-width: 1; -fx-border-radius: 5;"/>
+
+    <!-- Form Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background: transparent; -fx-background-color: transparent;">
+        <VBox spacing="15">
+
+            <!-- Personal Information Section -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <Label text="👤 Personal Information"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Separator/>
+
+                <!-- First and Last Name -->
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="First Name *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtFirstName"
+                                   promptText="John"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Last Name *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtLastName"
+                                   promptText="Smith"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Email and Phone -->
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Email" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtEmail"
+                                   promptText="john.smith@email.com"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Phone *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtPhone"
+                                   promptText="(555) 123-4567"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Date of Birth and Hire Date -->
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Date of Birth *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <DatePicker fx:id="dateOfBirth"
+                                    promptText="Select date"
+                                    prefWidth="200"
+                                    style="-fx-background-radius: 5;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Hire Date *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <DatePicker fx:id="dateHire"
+                                    promptText="Select date"
+                                    prefWidth="200"
+                                    style="-fx-background-radius: 5;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Address -->
+                <VBox spacing="5">
+                    <Label text="Address" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <TextField fx:id="txtAddress"
+                               promptText="123 Main Street, City, State ZIP"
+                               style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                </VBox>
+            </VBox>
+
+            <!-- License Information Section -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <Label text="🪪 License Information"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Separator/>
+
+                <!-- License Number and State -->
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="License Number *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <TextField fx:id="txtLicenseNumber"
+                                   promptText="D1234567"
+                                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="License State *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <ComboBox fx:id="cmbLicenseState"
+                                  promptText="Select state"
+                                  prefWidth="200"
+                                  style="-fx-background-radius: 5;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- License Class and Expiration -->
+                <HBox spacing="10">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="License Class *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <ComboBox fx:id="cmbLicenseClass"
+                                  prefWidth="200"
+                                  style="-fx-background-radius: 5;"/>
+                    </VBox>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="License Expiration *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <DatePicker fx:id="dateLicenseExpiration"
+                                    promptText="Select date"
+                                    prefWidth="200"
+                                    style="-fx-background-radius: 5;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Medical Card Expiration -->
+                <VBox spacing="5">
+                    <Label text="Medical Card Expiration *" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <DatePicker fx:id="dateMedicalExpiration"
+                                promptText="Select date"
+                                prefWidth="200"
+                                style="-fx-background-radius: 5;"/>
+                    <Label text="💡 DOT medical card required for commercial drivers"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic;"/>
+                </VBox>
+            </VBox>
+
+            <!-- Endorsements Section -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <Label text="📋 Endorsements"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Separator/>
+
+                <VBox spacing="15">
+                    <VBox spacing="3">
+                        <CheckBox fx:id="chkHazmat" text="☢️ HazMat Endorsement"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label text="💡 Required for transporting hazardous materials and dangerous goods"
+                               style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic; -fx-padding: 0 0 0 25;"/>
+                    </VBox>
+
+                    <VBox spacing="3">
+                        <CheckBox fx:id="chkTankers" text="🛢️ Tankers Endorsement"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label text="💡 Required for operating tank vehicles carrying liquids or gases"
+                               style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic; -fx-padding: 0 0 0 25;"/>
+                    </VBox>
+
+                    <VBox spacing="3">
+                        <CheckBox fx:id="chkDoubles" text="🚛 Doubles/Triples Endorsement"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label text="💡 Required for pulling two or three trailers simultaneously"
+                               style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic; -fx-padding: 0 0 0 25;"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+
+            <!-- Status Section -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <Label text="📊 Status"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Separator/>
+
+                <VBox spacing="3">
+                    <CheckBox fx:id="chkAvailable"
+                              selected="true"
+                              text="✓ Driver Available for Assignment"
+                              style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <Label text="💡 Check this box if the driver is ready to be assigned to deliveries and routes"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-style: italic; -fx-padding: 0 0 0 25;"/>
+                </VBox>
+            </VBox>
+
+            <!-- Notes Section -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                <Label text="📝 Additional Notes"
+                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Separator/>
+                <TextArea fx:id="txtNotes"
+                          promptText="Enter any additional notes about this driver (certifications, preferences, restrictions, etc)..."
+                          prefRowCount="4"
+                          wrapText="true"
+                          style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-font-size: 13px;"/>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- Buttons -->
+    <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+        <Button text="Cancel"
+                onAction="#handleCancel"
+                prefWidth="110"
+                prefHeight="40"
+                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;"/>
+        <Button text="Add Driver"
+                onAction="#handleAdd"
+                prefWidth="130"
+                prefHeight="40"
+                defaultButton="true"
+                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>
+
+
+
