@@ -286,7 +286,7 @@ public class TruckController {
         System.out.println("➕ Add truck clicked");
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/trucklogisticsapp/AddTruckDialog.fxml")
+                    getClass().getResource("/org/example/trucklogisticsapp/AddCargoItemDialog")
             );
             Parent root = loader.load();
 
