@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import org.example.trucklogisticsapp.model.Shipment;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 
 public class ShipmentController {
 
@@ -33,6 +34,10 @@ public class ShipmentController {
     @FXML private TableColumn<Shipment, String> assignmentColumn;
     @FXML private TableColumn<Shipment, String> deliveryColumn;
     @FXML private TableColumn<Shipment, Void>   actionsColumn;
+    @FXML private Label totalShipmentsLabel;
+    @FXML private Label inTransitLabel;
+    @FXML private Label pendingLabel;
+    @FXML private Label totalValueLabel;
 
     // ============ STATE ============
 
@@ -50,7 +55,68 @@ public class ShipmentController {
 
         shipmentTable.setItems(shipments);
         loadShipmentsFromFirestore();
+        refreshStats();
     }
+
+    private void refreshStats() {
+        var db = FirestoreContext.getDB();
+        ApiFuture<QuerySnapshot> fut = db.collection("shipments").get();
+
+        // do work off the FX thread
+        new Thread(() -> {
+            try {
+                QuerySnapshot snap = fut.get();
+
+                int total = snap.size();
+                int inTransit = 0;
+                int pending = 0;
+                double totalValue = 0.0;
+
+                for (DocumentSnapshot doc : snap.getDocuments()) {
+                    // status counting
+                    String status = null;
+                    Object sObj = doc.get("status");
+                    if (sObj != null) status = String.valueOf(sObj);
+
+                    if (status != null) {
+                        String s = status.trim().toLowerCase();
+                        if (s.equals("in transit") || s.equals("intransit") || s.equals("transit")) inTransit++;
+                        if (s.equals("pending")) pending++;
+                    }
+
+                    // value summing (accept several possible field names)
+                    Object v = doc.get("totalValue");
+                    if (v == null) v = doc.get("value");
+                    if (v == null) v = doc.get("declaredValue");
+
+                    if (v instanceof Number) {
+                        totalValue += ((Number) v).doubleValue();
+                    } else if (v instanceof String) {
+                        try { totalValue += Double.parseDouble((String) v); } catch (NumberFormatException ignore) {}
+                    }
+                }
+
+                final int fTotal = total;
+                final int fInTransit = inTransit;
+                final int fPending = pending;
+                final double fTotalValue = totalValue;
+
+                Platform.runLater(() -> {
+                    NumberFormat money = NumberFormat.getCurrencyInstance();
+                    totalShipmentsLabel.setText(Integer.toString(fTotal));
+                    inTransitLabel.setText(Integer.toString(fInTransit));
+                    pendingLabel.setText(Integer.toString(fPending));
+                    totalValueLabel.setText(money.format(fTotalValue));
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    // optional: show a toast/alert if you have one
+                    System.err.println("Failed to load shipment stats: " + e.getMessage());
+                });
+            }
+        }, "load-shipment-stats").start();
+    }
+
 
     private void setupTableColumns() {
         // Bind columns to properties
