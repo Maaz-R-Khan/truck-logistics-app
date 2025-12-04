@@ -5,15 +5,18 @@ import javafx.beans.property.StringProperty;
 
 public class Shipment {
 
-    private final StringProperty shipmentId = new SimpleStringProperty();
-    private final StringProperty route = new SimpleStringProperty();
-    private final StringProperty customer = new SimpleStringProperty();
-    private final StringProperty weight = new SimpleStringProperty();
-    private final StringProperty value = new SimpleStringProperty();
-    private final StringProperty priority = new SimpleStringProperty();
-    private final StringProperty status = new SimpleStringProperty();
-    private final StringProperty assignment = new SimpleStringProperty();
-    private final StringProperty delivery = new SimpleStringProperty();
+    private StringProperty shipmentId = new SimpleStringProperty();
+    private StringProperty route = new SimpleStringProperty();
+    private StringProperty customer = new SimpleStringProperty();
+    private StringProperty weight = new SimpleStringProperty();
+    private StringProperty value = new SimpleStringProperty();
+    private StringProperty priority = new SimpleStringProperty();
+    private StringProperty status = new SimpleStringProperty();
+    private StringProperty assignment = new SimpleStringProperty();
+    private StringProperty delivery = new SimpleStringProperty();
+
+    // Required no-arg constructor for Firestore
+    public Shipment() {}
 
     public Shipment(String shipmentId,
                     String route,
@@ -36,30 +39,36 @@ public class Shipment {
         this.delivery.set(delivery);
     }
 
+    // ======== GETTERS ==========
     public String getShipmentId() { return shipmentId.get(); }
-    public StringProperty shipmentIdProperty() { return shipmentId; }
-
     public String getRoute() { return route.get(); }
-    public StringProperty routeProperty() { return route; }
-
     public String getCustomer() { return customer.get(); }
-    public StringProperty customerProperty() { return customer; }
-
     public String getWeight() { return weight.get(); }
-    public StringProperty weightProperty() { return weight; }
-
     public String getValue() { return value.get(); }
-    public StringProperty valueProperty() { return value; }
-
     public String getPriority() { return priority.get(); }
-    public StringProperty priorityProperty() { return priority; }
-
     public String getStatus() { return status.get(); }
-    public StringProperty statusProperty() { return status; }
-
     public String getAssignment() { return assignment.get(); }
-    public StringProperty assignmentProperty() { return assignment; }
-
     public String getDelivery() { return delivery.get(); }
+
+    // ======== SETTERS ==========
+    public void setShipmentId(String shipmentId) { this.shipmentId.set(shipmentId); }
+    public void setRoute(String route) { this.route.set(route); }
+    public void setCustomer(String customer) { this.customer.set(customer); }
+    public void setWeight(String weight) { this.weight.set(weight); }
+    public void setValue(String value) { this.value.set(value); }
+    public void setPriority(String priority) { this.priority.set(priority); }
+    public void setStatus(String status) { this.status.set(status); }
+    public void setAssignment(String assignment) { this.assignment.set(assignment); }
+    public void setDelivery(String delivery) { this.delivery.set(delivery); }
+
+    // ======== PROPERTY GETTERS (JavaFX Bindings) ==========
+    public StringProperty shipmentIdProperty() { return shipmentId; }
+    public StringProperty routeProperty() { return route; }
+    public StringProperty customerProperty() { return customer; }
+    public StringProperty weightProperty() { return weight; }
+    public StringProperty valueProperty() { return value; }
+    public StringProperty priorityProperty() { return priority; }
+    public StringProperty statusProperty() { return status; }
+    public StringProperty assignmentProperty() { return assignment; }
     public StringProperty deliveryProperty() { return delivery; }
 }

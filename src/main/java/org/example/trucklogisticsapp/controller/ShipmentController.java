@@ -1,22 +1,25 @@
 package org.example.trucklogisticsapp.controller;
 
-
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import org.example.trucklogisticsapp.model.Shipment;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.example.trucklogisticsapp.model.Shipment;
 
 import java.io.IOException;
 
 public class ShipmentController {
+
+    // ============ FXML BINDINGS ============
 
     @FXML private TableView<Shipment> shipmentTable;
 
@@ -31,11 +34,25 @@ public class ShipmentController {
     @FXML private TableColumn<Shipment, String> deliveryColumn;
     @FXML private TableColumn<Shipment, Void>   actionsColumn;
 
+    // ============ STATE ============
+
     private final ObservableList<Shipment> shipments =
             FXCollections.observableArrayList();
 
+    // ============ INITIALIZATION ============
+
     @FXML
     private void initialize() {
+        setupTableColumns();
+        configurePriorityColumn();
+        configureStatusColumn();
+        configureActionsColumn();
+
+        shipmentTable.setItems(shipments);
+        loadShipmentsFromFirestore();
+    }
+
+    private void setupTableColumns() {
         // Bind columns to properties
         idColumn.setCellValueFactory(data -> data.getValue().shipmentIdProperty());
         routeColumn.setCellValueFactory(data -> data.getValue().routeProperty());
@@ -51,84 +68,23 @@ public class ShipmentController {
         wrapColumnText(routeColumn);
         wrapColumnText(assignmentColumn);
         wrapColumnText(deliveryColumn);
-
-        // Badge-style cells for priority and status
-        configurePriorityColumn();
-        configureStatusColumn();
-
-        // Actions column (edit / view buttons)
-        configureActionsColumn();
-
-        // Sample data to match the screenshot
-        shipments.addAll(
-                new Shipment("SH-001",
-                        "Los Angeles, CA\nPhoenix, AZ",
-                        "ABC Electronics",
-                        "15,000 lbs",
-                        "$ 50,000",
-                        "High",
-                        "In Transit",
-                        "TRK-001\nJohn Smith",
-                        "2024-10-07\n8 hours"),
-                new Shipment("SH-002",
-                        "Denver, CO\nSeattle, WA",
-                        "Northwest Manufacturing",
-                        "22,000 lbs",
-                        "$ 75,000",
-                        "Medium",
-                        "Delivered",
-                        "TRK-002\nSarah Johnson",
-                        "2024-10-06\n12 hours"),
-                new Shipment("SH-003",
-                        "Dallas, TX\nMiami, FL",
-                        "Sunshine Imports",
-                        "18,500 lbs",
-                        "$ 65,000",
-                        "High",
-                        "Assigned",
-                        "TRK-003\nMike Wilson",
-                        "2024-10-08\n14 hours"),
-                new Shipment("SH-004",
-                        "Chicago, IL\nNew York, NY",
-                        "Metro Supply Co.",
-                        "12,000 lbs",
-                        "$ 35,000",
-                        "Medium",
-                        "Pending",
-                        "Unassigned",
-                        "2024-10-09\n10 hours"),
-                new Shipment("SH-005",
-                        "Atlanta, GA\nHouston, TX",
-                        "Southern Logistics",
-                        "20,000 lbs",
-                        "$ 45,000",
-                        "Urgent",
-                        "Pending",
-                        "Unassigned",
-                        "2024-10-09\n11 hours")
-        );
-
-        shipmentTable.setItems(shipments);
     }
 
     private void wrapColumnText(TableColumn<Shipment, String> column) {
-        column.setCellFactory(col -> {
-            TableCell<Shipment, String> cell = new TableCell<>() {
-                private final Label label = new Label();
+        column.setCellFactory(col -> new TableCell<>() {
+            private final Label label = new Label();
 
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setGraphic(null);
-                    } else {
-                        label.setText(item);
-                        label.setWrapText(true);
-                        setGraphic(label);
-                    }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(item);
+                    label.setWrapText(true);
+                    setGraphic(label);
                 }
-            };
-            return cell;
+            }
         });
     }
 
@@ -147,10 +103,10 @@ public class ShipmentController {
                 label.getStyleClass().setAll("badge");
 
                 switch (item) {
-                    case "High" -> label.getStyleClass().add("badge-high");
+                    case "High"   -> label.getStyleClass().add("badge-high");
                     case "Medium" -> label.getStyleClass().add("badge-medium");
                     case "Urgent" -> label.getStyleClass().add("badge-urgent");
-                    default -> { }
+                    default -> { /* leave base badge */ }
                 }
                 setGraphic(label);
             }
@@ -176,7 +132,7 @@ public class ShipmentController {
                     case "Delivered"  -> label.getStyleClass().add("status-delivered");
                     case "Assigned"   -> label.getStyleClass().add("status-assigned");
                     case "Pending"    -> label.getStyleClass().add("status-pending");
-                    default -> { }
+                    default -> { /* leave base badge */ }
                 }
                 setGraphic(label);
             }
@@ -218,6 +174,89 @@ public class ShipmentController {
             }
         });
     }
+
+    // ============ FIRESTORE: LOAD ============
+
+    /**
+     * Load shipments from Firestore ("shipments" collection)
+     */
+    private void loadShipmentsFromFirestore() {
+        new Thread(() -> {
+            try {
+                Firestore db = FirestoreContext.getDB();
+
+                ApiFuture<QuerySnapshot> future =
+                        db.collection("shipments").get();
+                QuerySnapshot snapshot = future.get();
+
+                ObservableList<Shipment> loadedShipments =
+                        FXCollections.observableArrayList();
+
+                for (QueryDocumentSnapshot doc : snapshot.getDocuments()) {
+                    Shipment shipment = doc.toObject(Shipment.class);
+
+                    // Optional: ensure shipmentId matches Firestore document ID
+                    if (shipment.getShipmentId() == null || shipment.getShipmentId().isEmpty()) {
+                        shipment.setShipmentId(doc.getId());
+                    }
+
+                    loadedShipments.add(shipment);
+                }
+
+                Platform.runLater(() -> {
+                    shipments.clear();
+                    shipments.addAll(loadedShipments);
+                    System.out.println("📦 Loaded " + loadedShipments.size() + " shipments from Firestore");
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() ->
+                        showAlert(Alert.AlertType.ERROR, "Firestore Error",
+                                "Could not load shipments from Firestore:\n" + e.getMessage())
+                );
+            }
+        }).start();
+    }
+
+    // ============ FIRESTORE: SAVE ============
+
+    /**
+     * Save a single shipment to Firestore ("shipments" collection)
+     */
+    private void saveShipmentToFirestore(Shipment shipment) {
+        new Thread(() -> {
+            try {
+                Firestore db = FirestoreContext.getDB();
+
+                // Use shipmentId as document ID, or generate one if missing
+                String docId = (shipment.getShipmentId() != null && !shipment.getShipmentId().isEmpty())
+                        ? shipment.getShipmentId()
+                        : db.collection("shipments").document().getId();
+
+                if (shipment.getShipmentId() == null || shipment.getShipmentId().isEmpty()) {
+                    shipment.setShipmentId(docId); // keep UI model in sync
+                }
+
+                ApiFuture<WriteResult> future =
+                        db.collection("shipments").document(docId).set(shipment);
+
+                WriteResult result = future.get();
+                System.out.println("✅ Shipment saved to Firestore at: " + result.getUpdateTime());
+
+            } catch (Exception ex) {
+                System.err.println("❌ Failed to save shipment to Firestore");
+                ex.printStackTrace();
+                Platform.runLater(() ->
+                        showAlert(Alert.AlertType.ERROR, "Firestore Error",
+                                "Could not save shipment to Firestore:\n" + ex.getMessage())
+                );
+            }
+        }).start();
+    }
+
+    // ============ DIALOG HANDLER ============
+
     @FXML
     public void openCreateShipmentDialog() {
         try {
@@ -225,14 +264,21 @@ public class ShipmentController {
                     getClass().getResource("/org/example/trucklogisticsapp/AddShipmentDialog.fxml"));
             Parent root = loader.load();
 
-          AddShipmentController controller = loader.getController();
+            AddShipmentController controller = loader.getController();
 
             // Generate next shipment ID like SH-006
             int nextNum = shipments.size() + 1;
             String nextId = String.format("SH-%03d", nextNum);
             controller.setNextShipmentId(nextId);
 
-            controller.setOnShipmentCreated(shipments::add);
+            controller.setOnShipmentCreated(shipment -> {
+                // 1) Update UI
+                shipments.add(shipment);
+                shipmentTable.refresh();
+
+                // 2) Persist to Firestore
+                saveShipmentToFirestore(shipment);
+            });
 
             Stage dialog = new Stage();
             dialog.initOwner(shipmentTable.getScene().getWindow());
@@ -243,7 +289,18 @@ public class ShipmentController {
             dialog.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error",
+                    "Could not open Add Shipment dialog:\n" + e.getMessage());
         }
     }
-}
 
+    // ============ UTIL ============
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+}

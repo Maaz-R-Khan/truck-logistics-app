@@ -141,6 +141,7 @@ public class Truck {
         this.plateNumber = plateNumber;
     }
 
+    // NEW: Source getter/setter
     public String getSource() {
         return source;
     }
