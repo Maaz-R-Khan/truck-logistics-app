@@ -43,7 +43,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Total Shipments" styleClass="stat-label-small"/>
-                    <Text fx:id="lblTotalShipments" text="5" styleClass="stat-value-large"/>
+                    <Label fx:id="totalShipmentsLabel" text="0" styleClass="stat-value-large"/>
                     <Text text="All time" styleClass="stat-description-small"/>
                 </VBox>
             </HBox>
@@ -60,7 +60,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="In Transit" styleClass="stat-label-small"/>
-                    <Text fx:id="lblInTransit" text="1" styleClass="stat-value-large"/>
+                    <Label fx:id="inTransitLabel" text="0" styleClass="stat-value-large"/>
                     <Text text="Currently moving" styleClass="stat-description-small"/>
                 </VBox>
             </HBox>
@@ -77,7 +77,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Pending" styleClass="stat-label-small"/>
-                    <Text fx:id="lblPending" text="2" styleClass="stat-value-large"/>
+                    <Label fx:id="pendingLabel" text="0" styleClass="stat-value-large"/>
                     <Text text="Awaiting assignment" styleClass="stat-description-small"/>
                 </VBox>
             </HBox>
@@ -94,7 +94,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Total Value" styleClass="stat-label-small"/>
-                    <Text fx:id="lblTotalValue" text="\$270K" styleClass="stat-value-large"/>
+                    <Label fx:id="totalValueLabel" text="\$0.00" styleClass="stat-value"/>
                     <Text text="Cargo value" styleClass="stat-description-small"/>
                 </VBox>
             </HBox>
