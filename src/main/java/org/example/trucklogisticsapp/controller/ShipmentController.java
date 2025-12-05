@@ -28,7 +28,7 @@ public class ShipmentController {
     @FXML private TableColumn<Shipment, String> routeColumn;
     @FXML private TableColumn<Shipment, String> customerColumn;
     @FXML private TableColumn<Shipment, String> weightColumn;
-    @FXML private TableColumn<Shipment, String> valueColumn;
+    @FXML private TableColumn<Shipment, Integer> valueColumn;
     @FXML private TableColumn<Shipment, String> priorityColumn;
     @FXML private TableColumn<Shipment, String> statusColumn;
     @FXML private TableColumn<Shipment, String> assignmentColumn;
@@ -124,7 +124,7 @@ public class ShipmentController {
         routeColumn.setCellValueFactory(data -> data.getValue().routeProperty());
         customerColumn.setCellValueFactory(data -> data.getValue().customerProperty());
         weightColumn.setCellValueFactory(data -> data.getValue().weightProperty());
-        valueColumn.setCellValueFactory(data -> data.getValue().valueProperty());
+        valueColumn.setCellValueFactory(cd -> cd.getValue().valueProperty().asObject());;
         priorityColumn.setCellValueFactory(data -> data.getValue().priorityProperty());
         statusColumn.setCellValueFactory(data -> data.getValue().statusProperty());
         assignmentColumn.setCellValueFactory(data -> data.getValue().assignmentProperty());
