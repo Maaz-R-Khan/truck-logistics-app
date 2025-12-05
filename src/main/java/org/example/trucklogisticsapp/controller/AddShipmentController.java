@@ -65,7 +65,7 @@ public class AddShipmentController {
         String priority = (priorityCombo.getValue() == null) ? "Medium" : priorityCombo.getValue();
         String deliveryInfo = deliveryText.isBlank() ? "N/A" : deliveryText;
 
-        // parse integer value (default to 0 if blank)
+
         int value;
         try {
             value = valueField.getText().isBlank() ? 0 : Integer.parseInt(valueField.getText().trim());
@@ -74,15 +74,14 @@ public class AddShipmentController {
             return;
         }
 
-        // keep weight simple (string) unless your model requires numeric
         String weight = weightField.getText().isBlank() ? "0 lbs" : weightField.getText() + " lbs";
 
         Shipment shipment = new Shipment(
                 nextShipmentId,
                 route,
                 customer,
-                weight,          // adjust if your model wants numeric weight
-                value,           // <-- int value
+                weight,
+                value,
                 priority,
                 "Pending",
                 "Unassigned",
