@@ -94,7 +94,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Total Value" styleClass="stat-label-small"/>
-                    <Label fx:id="totalValueLabel" text="\$0.00" styleClass="stat-value"/>
+                    <Label fx:id="totalValueLabel" text="\$0.00" styleClass="stat-value-large"/>
                     <Text text="Cargo value" styleClass="stat-description-small"/>
                 </VBox>
             </HBox>

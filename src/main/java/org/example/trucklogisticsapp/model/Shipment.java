@@ -1,16 +1,12 @@
 package org.example.trucklogisticsapp.model;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 // imports to add at top
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.beans.value.ObservableValue;
 
-import java.text.NumberFormat;
 
 public class Shipment {
 
@@ -18,7 +14,7 @@ public class Shipment {
     private StringProperty route = new SimpleStringProperty();
     private StringProperty customer = new SimpleStringProperty();
     private StringProperty weight = new SimpleStringProperty();
-    private StringProperty value = new SimpleStringProperty();
+    private IntegerProperty value = new SimpleIntegerProperty();
     private StringProperty priority = new SimpleStringProperty();
     private StringProperty status = new SimpleStringProperty();
     private StringProperty assignment = new SimpleStringProperty();
@@ -31,7 +27,7 @@ public class Shipment {
                     String route,
                     String customer,
                     String weight,
-                    String value,
+                    int value,
                     String priority,
                     String status,
                     String assignment,
@@ -53,7 +49,7 @@ public class Shipment {
     public String getRoute() { return route.get(); }
     public String getCustomer() { return customer.get(); }
     public String getWeight() { return weight.get(); }
-    public String getValue() { return value.get(); }
+    public int getValue() { return value.get(); }
     public String getPriority() { return priority.get(); }
     public String getStatus() { return status.get(); }
     public String getAssignment() { return assignment.get(); }
@@ -64,7 +60,7 @@ public class Shipment {
     public void setRoute(String route) { this.route.set(route); }
     public void setCustomer(String customer) { this.customer.set(customer); }
     public void setWeight(String weight) { this.weight.set(weight); }
-    public void setValue(String value) { this.value.set(value); }
+    public void setValue(int value) { this.value.set(value); }
     public void setPriority(String priority) { this.priority.set(priority); }
     public void setStatus(String status) { this.status.set(status); }
     public void setAssignment(String assignment) { this.assignment.set(assignment); }
@@ -75,7 +71,7 @@ public class Shipment {
     public StringProperty routeProperty() { return route; }
     public StringProperty customerProperty() { return customer; }
     public StringProperty weightProperty() { return weight; }
-    public StringProperty valueProperty() { return value; }
+    public IntegerProperty valueProperty() { return value; }
     public StringProperty priorityProperty() { return priority; }
     public StringProperty statusProperty() { return status; }
     public StringProperty assignmentProperty() { return assignment; }
