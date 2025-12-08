@@ -1,32 +1,49 @@
 package org.example.trucklogisticsapp.model;
 
+import com.google.cloud.firestore.annotation.PropertyName;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-// imports to add at top
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-
-import java.text.NumberFormat;
 
 public class Shipment {
 
-    private StringProperty shipmentId = new SimpleStringProperty();
-    private StringProperty route = new SimpleStringProperty();
-    private StringProperty customer = new SimpleStringProperty();
-    private StringProperty weight = new SimpleStringProperty();
-    private StringProperty value = new SimpleStringProperty();
-    private StringProperty priority = new SimpleStringProperty();
-    private StringProperty status = new SimpleStringProperty();
-    private StringProperty assignment = new SimpleStringProperty();
-    private StringProperty delivery = new SimpleStringProperty();
+    private final StringProperty shipmentId = new SimpleStringProperty();
+    private final StringProperty route = new SimpleStringProperty();
+    private final StringProperty customer = new SimpleStringProperty();
+    private final StringProperty weight = new SimpleStringProperty();
+    private final StringProperty value = new SimpleStringProperty();
+    private final StringProperty priority = new SimpleStringProperty();
+    private final StringProperty status = new SimpleStringProperty();
+    private final StringProperty assignment = new SimpleStringProperty();
+    private final StringProperty delivery = new SimpleStringProperty();
 
-    // Required no-arg constructor for Firestore
+    // Required no-arg constructor
     public Shipment() {}
 
+    // ========= Firestore Safe Setter for "value" ===========
+    @PropertyName("value")
+    public void setValueFromFirestore(Object v) {
+        if (v == null) {
+            this.value.set("");
+        } else if (v instanceof Number) {
+            this.value.set(String.valueOf(((Number) v).doubleValue()));
+        } else {
+            this.value.set(String.valueOf(v));
+        }
+    }
+
+    // ========= Firestore Safe Setter for "weight" ===========
+    @PropertyName("weight")
+    public void setWeightFromFirestore(Object w) {
+        if (w == null) {
+            this.weight.set("");
+        } else if (w instanceof Number) {
+            this.weight.set(String.valueOf(((Number) w).doubleValue()));
+        } else {
+            this.weight.set(String.valueOf(w));
+        }
+    }
+
+    // ========= Manual constructor for creating shipments ===========
     public Shipment(String shipmentId,
                     String route,
                     String customer,
@@ -63,8 +80,6 @@ public class Shipment {
     public void setShipmentId(String shipmentId) { this.shipmentId.set(shipmentId); }
     public void setRoute(String route) { this.route.set(route); }
     public void setCustomer(String customer) { this.customer.set(customer); }
-    public void setWeight(String weight) { this.weight.set(weight); }
-    public void setValue(String value) { this.value.set(value); }
     public void setPriority(String priority) { this.priority.set(priority); }
     public void setStatus(String status) { this.status.set(status); }
     public void setAssignment(String assignment) { this.assignment.set(assignment); }
@@ -80,4 +95,5 @@ public class Shipment {
     public StringProperty statusProperty() { return status; }
     public StringProperty assignmentProperty() { return assignment; }
     public StringProperty deliveryProperty() { return delivery; }
+
 }

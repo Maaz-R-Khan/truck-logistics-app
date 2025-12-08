@@ -1,12 +1,9 @@
 package org.example.trucklogisticsapp.controller;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 import org.example.trucklogisticsapp.model.MaintenanceRecord;
-
-import java.time.LocalDate;
 
 public class AddMaintenanceController {
 
@@ -28,8 +25,8 @@ public class AddMaintenanceController {
         newRecord = new MaintenanceRecord(
                 txtRecordId.getText(),
                 txtTruckId.getText(),
-                dpScheduled.getValue(),
                 txtType.getText(),
+                dpScheduled.getValue() != null ? dpScheduled.getValue().toString() : null,
                 Double.parseDouble(txtCost.getText()),
                 txtStatus.getText()
         );
@@ -37,6 +34,8 @@ public class AddMaintenanceController {
         ((Stage) txtRecordId.getScene().getWindow()).close();
     }
 
-    public void onCancel(ActionEvent actionEvent) {
+    @FXML
+    private void onCancel() {
+        ((Stage) txtRecordId.getScene().getWindow()).close();
     }
 }

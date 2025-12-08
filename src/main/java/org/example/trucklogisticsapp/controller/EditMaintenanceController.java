@@ -1,6 +1,5 @@
 package org.example.trucklogisticsapp.controller;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
@@ -23,7 +22,7 @@ public class EditMaintenanceController {
         txtRecordId.setText(r.getRecordId());
         txtTruckId.setText(r.getTruckId());
         txtType.setText(r.getType());
-        dpScheduled.setValue(r.getScheduledDate());
+        dpScheduled.setValue(r.toLocalDate());
         txtCost.setText(String.valueOf(r.getCost()));
         txtStatus.setText(r.getStatus());
     }
@@ -32,16 +31,15 @@ public class EditMaintenanceController {
     private void onSave() {
         editable.setTruckId(txtTruckId.getText());
         editable.setType(txtType.getText());
-        editable.setScheduledDate(dpScheduled.getValue());
+        editable.setScheduledDateFromLocalDate(dpScheduled.getValue());
         editable.setCost(Double.parseDouble(txtCost.getText()));
         editable.setStatus(txtStatus.getText());
 
         ((Stage) txtRecordId.getScene().getWindow()).close();
     }
 
-    public void onUpdate(ActionEvent actionEvent) {
-    }
-
-    public void onCancel(ActionEvent actionEvent) {
+    @FXML
+    private void onCancel() {
+        ((Stage) txtRecordId.getScene().getWindow()).close();
     }
 }
