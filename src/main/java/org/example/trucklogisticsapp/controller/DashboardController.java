@@ -5,7 +5,7 @@ import javafx.scene.text.Text;
 
 public class DashboardController {
 
-    @FXML private Text lblActiveTrucks;
+    @FXML private Text lblTotalTrucks;
     @FXML private Text lblAvailableDrivers;
     @FXML private Text lblPendingShipments;
 
@@ -17,9 +17,9 @@ public class DashboardController {
 
     private void loadDashboardData() {
         // Load sample data
-        lblActiveTrucks.setText("24");
+        lblTotalTrucks.setText("9");
         lblAvailableDrivers.setText("18");
-        lblPendingShipments.setText("42");
+        lblPendingShipments.setText("5");
 
         System.out.println("📊 Dashboard data loaded");
     }
