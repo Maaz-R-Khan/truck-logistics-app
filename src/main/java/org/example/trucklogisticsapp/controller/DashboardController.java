@@ -8,7 +8,6 @@ public class DashboardController {
     @FXML private Text lblActiveTrucks;
     @FXML private Text lblAvailableDrivers;
     @FXML private Text lblPendingShipments;
-    @FXML private Text lblRoutesOptimized;
 
     @FXML
     public void initialize() {
@@ -21,7 +20,6 @@ public class DashboardController {
         lblActiveTrucks.setText("24");
         lblAvailableDrivers.setText("18");
         lblPendingShipments.setText("42");
-        lblRoutesOptimized.setText("156");
 
         System.out.println("📊 Dashboard data loaded");
     }
