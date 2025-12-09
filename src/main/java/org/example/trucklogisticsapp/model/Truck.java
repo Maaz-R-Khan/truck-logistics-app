@@ -1,5 +1,7 @@
 package org.example.trucklogisticsapp.model;
 
+import com.google.cloud.firestore.annotation.PropertyName;
+import com.google.cloud.firestore.annotation.Exclude;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -9,24 +11,42 @@ import java.util.UUID;
 /**
  * Truck model with comprehensive maintenance tracking
  * Includes automatic reminder calculations for scheduled maintenance
+ * FIRESTORE COMPATIBLE - Uses @PropertyName for field mapping
  */
 public class Truck {
 
     // Basic truck information
+    @PropertyName("truckId")
     private String id;
+
     private String vin;
     private String make;
     private String model;
     private int year;
     private double mileage;
+
+    @PropertyName("capacityLbs")
     private int capacityKg;
+
+    @PropertyName("liscensePlate")
     private String plateNumber;
-    private String source;  // NEW: Where truck was acquired from (dealer, brand, etc)
+
+    private String source;
     private String notes;
 
     // Status fields
     private boolean available = true;
     private boolean needsMaintenance = false;
+
+    // Additional Firestore fields
+    @PropertyName("status")
+    private String status;
+
+    @PropertyName("currentDriver")
+    private String currentDriver;
+
+    @PropertyName("fuelMpg")
+    private Double fuelMpg;
 
     // Maintenance tracking fields
     private LocalDate lastMaintenanceDate;
@@ -63,7 +83,7 @@ public class Truck {
     }
 
     /**
-     * Default constructor
+     * Default constructor - REQUIRED for Firestore
      */
     public Truck() {
         this.id = UUID.randomUUID().toString();
@@ -82,6 +102,17 @@ public class Truck {
     }
 
     public void setId(String id) {
+        this.id = id;
+    }
+
+    // Firestore mapping for truckId
+    @PropertyName("truckId")
+    public String getTruckId() {
+        return id;
+    }
+
+    @PropertyName("truckId")
+    public void setTruckId(String id) {
         this.id = id;
     }
 
@@ -133,11 +164,33 @@ public class Truck {
         this.capacityKg = capacityKg;
     }
 
+    // Firestore mapping for capacityLbs
+    @PropertyName("capacityLbs")
+    public int getCapacityLbs() {
+        return capacityKg;
+    }
+
+    @PropertyName("capacityLbs")
+    public void setCapacityLbs(int capacityKg) {
+        this.capacityKg = capacityKg;
+    }
+
     public String getPlateNumber() {
         return plateNumber;
     }
 
     public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
+    }
+
+    // Firestore mapping for liscensePlate (typo in Firestore)
+    @PropertyName("liscensePlate")
+    public String getLiscensePlate() {
+        return plateNumber;
+    }
+
+    @PropertyName("liscensePlate")
+    public void setLiscensePlate(String plateNumber) {
         this.plateNumber = plateNumber;
     }
 
@@ -174,6 +227,32 @@ public class Truck {
         this.notes = notes;
     }
 
+    // Additional Firestore fields
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCurrentDriver() {
+        return currentDriver;
+    }
+
+    public void setCurrentDriver(String currentDriver) {
+        this.currentDriver = currentDriver;
+    }
+
+    public Double getFuelMpg() {
+        return fuelMpg;
+    }
+
+    public void setFuelMpg(Double fuelMpg) {
+        this.fuelMpg = fuelMpg;
+    }
+
     // ========================================
     // MAINTENANCE TRACKING - GETTERS/SETTERS
     // ========================================
@@ -196,12 +275,14 @@ public class Truck {
 
     // ========================================
     // MAINTENANCE TRACKING - CALCULATED METHODS
+    // Mark with @Exclude so Firestore doesn't try to deserialize them
     // ========================================
 
     /**
      * Calculates when the next maintenance is due
      * @return LocalDate of next maintenance, or null if not configured
      */
+    @Exclude
     public LocalDate getNextMaintenanceDue() {
         if (lastMaintenanceDate == null || maintenanceIntervalMonths <= 0) {
             return null;
@@ -211,8 +292,9 @@ public class Truck {
 
     /**
      * Gets a human-readable maintenance status string with color indicators
-     * @return Status string (e.g., "✓ Next: Jul 15 (150 days)" or "🔴 OVERDUE (45 days)")
+     * @return Status string (e.g., "OK", "Due Soon", "OVERDUE")
      */
+    @Exclude
     public String getMaintenanceStatus() {
         LocalDate nextDue = getNextMaintenanceDue();
 
@@ -221,7 +303,6 @@ public class Truck {
         }
 
         long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), nextDue);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd");
 
         if (daysUntil < 0) {
             // Overdue - RED
@@ -239,6 +320,7 @@ public class Truck {
      * Checks if maintenance is currently overdue
      * @return true if overdue, false otherwise
      */
+    @Exclude
     public boolean isMaintenanceOverdue() {
         LocalDate nextDue = getNextMaintenanceDue();
         if (nextDue == null) {
@@ -251,6 +333,7 @@ public class Truck {
      * Checks if maintenance is due soon (within 30 days)
      * @return true if due soon, false otherwise
      */
+    @Exclude
     public boolean isMaintenanceDueSoon() {
         LocalDate nextDue = getNextMaintenanceDue();
         if (nextDue == null) {
@@ -265,6 +348,7 @@ public class Truck {
      * Negative number means overdue
      * @return days until maintenance (negative if overdue, Long.MAX_VALUE if not configured)
      */
+    @Exclude
     public long getDaysUntilMaintenance() {
         LocalDate nextDue = getNextMaintenanceDue();
         if (nextDue == null) {
@@ -281,14 +365,12 @@ public class Truck {
         this.needsMaintenance = false;
     }
 
-    // ========================================
-    // UTILITY METHODS
-    // ========================================
 
     /**
      * Gets a display-friendly name for the truck
      * @return String like "Volvo FH16 (VIN123)" or "Truck"
      */
+    @Exclude
     public String getDisplayName() {
         String mk = (make == null || make.isBlank()) ? "Truck" : make;
         String md = (model == null || model.isBlank()) ? "" : (" " + model);
@@ -298,6 +380,7 @@ public class Truck {
     /**
      * Validates if the truck has required information
      */
+    @Exclude
     public boolean isValid() {
         return vin != null && !vin.isBlank() &&
                 make != null && !make.isBlank() &&

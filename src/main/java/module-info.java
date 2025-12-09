@@ -8,6 +8,7 @@ module org.example.trucklogisticsapp {
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
+    requires google.cloud.firestore;
 
     // For TMS/EDI integration (add when ready)
     // requires okhttp3;
