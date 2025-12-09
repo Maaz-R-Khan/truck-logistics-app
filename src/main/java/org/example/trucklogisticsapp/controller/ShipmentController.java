@@ -26,7 +26,7 @@ public class ShipmentController {
     @FXML private TableColumn<Shipment, String> routeColumn;
     @FXML private TableColumn<Shipment, String> customerColumn;
     @FXML private TableColumn<Shipment, String> weightColumn;
-    @FXML private TableColumn<Shipment, String> valueColumn;
+    @FXML private TableColumn<Shipment, Integer> valueColumn;
     @FXML private TableColumn<Shipment, String> priorityColumn;
     @FXML private TableColumn<Shipment, String> statusColumn;
     @FXML private TableColumn<Shipment, String> assignmentColumn;
@@ -54,7 +54,7 @@ public class ShipmentController {
     }
 
     // ==================================================
-    // LOAD SHIPMENT STATS
+    // SHIPMENT STATS
     // ==================================================
     private void refreshStats() {
         Firestore db = FirestoreContext.getDB();
@@ -67,32 +67,28 @@ public class ShipmentController {
                 int total = snap.size();
                 int inTransit = 0;
                 int pending = 0;
-                double totalValue = 0.0;
+                double totalValue = 0;
 
                 for (DocumentSnapshot doc : snap.getDocuments()) {
-                    // ---------- STATUS ----------
+
                     Object statusObj = doc.get("status");
-                    String status = statusObj != null ? String.valueOf(statusObj) : null;
+                    String status = statusObj != null ? statusObj.toString() : null;
 
                     if (status != null) {
                         String s = status.toLowerCase().trim();
-                        if (s.equals("in transit") || s.equals("intransit") || s.equals("transit")) inTransit++;
-                        if (s.equals("pending")) pending++;
+                        if (s.equals("in transit") || s.equals("intransit") || s.equals("transit"))
+                            inTransit++;
+                        if (s.equals("pending"))
+                            pending++;
                     }
 
-                    // ---------- VALUE ----------
                     Object v = doc.get("totalValue");
                     if (v == null) v = doc.get("value");
-                    if (v == null) v = doc.get("declaredValue");
-
                     if (v instanceof Number) {
                         totalValue += ((Number) v).doubleValue();
-                    } else if (v instanceof String) {
-                        try { totalValue += Double.parseDouble((String) v); } catch (Exception ignored) {}
                     }
                 }
 
-                // ===== MUST BE FINAL FOR THE LAMBDA =====
                 final int fTotal = total;
                 final int fInTransit = inTransit;
                 final int fPending = pending;
@@ -108,21 +104,21 @@ public class ShipmentController {
                 });
 
             } catch (Exception e) {
-                Platform.runLater(() ->
-                        System.err.println("❌ Shipment stats failed: " + e.getMessage()));
+                System.err.println("Failed stats: " + e.getMessage());
             }
         }).start();
     }
 
     // ==================================================
-    // TABLE CONFIG
+    // TABLE BINDING
     // ==================================================
     private void setupTableColumns() {
+
         idColumn.setCellValueFactory(d -> d.getValue().shipmentIdProperty());
         routeColumn.setCellValueFactory(d -> d.getValue().routeProperty());
         customerColumn.setCellValueFactory(d -> d.getValue().customerProperty());
         weightColumn.setCellValueFactory(d -> d.getValue().weightProperty());
-        valueColumn.setCellValueFactory(d -> d.getValue().valueProperty());
+        valueColumn.setCellValueFactory(c -> c.getValue().valueProperty().asObject());
         priorityColumn.setCellValueFactory(d -> d.getValue().priorityProperty());
         statusColumn.setCellValueFactory(d -> d.getValue().statusProperty());
         assignmentColumn.setCellValueFactory(d -> d.getValue().assignmentProperty());
@@ -140,7 +136,6 @@ public class ShipmentController {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-
                 if (empty || item == null) {
                     setGraphic(null);
                 } else {
@@ -262,7 +257,6 @@ public class ShipmentController {
                 Platform.runLater(() -> {
                     shipments.clear();
                     shipments.addAll(loaded);
-                    System.out.println("📦 Loaded " + loaded.size() + " shipments");
                 });
 
             } catch (Exception e) {
@@ -274,7 +268,7 @@ public class ShipmentController {
     }
 
     // ==================================================
-    // SAVE SHIPMENTS
+    // SAVE
     // ==================================================
     private void saveShipmentToFirestore(Shipment shipment) {
         new Thread(() -> {
@@ -291,7 +285,7 @@ public class ShipmentController {
                         db.collection("shipments").document(docId).set(shipment);
 
                 WriteResult result = fut.get();
-                System.out.println("✅ Saved shipment at: " + result.getUpdateTime());
+                System.out.println("Saved shipment at " + result.getUpdateTime());
 
             } catch (Exception e) {
                 Platform.runLater(() ->
@@ -302,7 +296,7 @@ public class ShipmentController {
     }
 
     // ==================================================
-    // CREATE SHIPMENT DIALOG
+    // CREATE DIALOG
     // ==================================================
     @FXML
     private void openCreateShipmentDialog() {
@@ -336,9 +330,6 @@ public class ShipmentController {
         }
     }
 
-    // ==================================================
-    // UTIL
-    // ==================================================
     private void showAlert(Alert.AlertType type, String title, String msg) {
         Alert a = new Alert(type);
         a.setTitle(title);

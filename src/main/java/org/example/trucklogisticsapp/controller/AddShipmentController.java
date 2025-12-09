@@ -5,9 +5,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.trucklogisticsapp.model.Shipment;
-
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
+import javafx.scene.control.TextFormatter;
 
 public class AddShipmentController {
 
@@ -35,6 +35,11 @@ public class AddShipmentController {
     @FXML
     private void initialize() {
         priorityCombo.getItems().addAll("Low", "Medium", "High", "Urgent");
+
+        valueField.setTextFormatter(new TextFormatter<>(change ->
+                change.getControlNewText().matches("\\d*") ? change : null
+        ));
+
     }
 
     @FXML
@@ -44,38 +49,46 @@ public class AddShipmentController {
 
     @FXML
     private void onCreateShipment() {
-        // Basic validation (keep it light, you can expand later)
         if (originField.getText().isBlank() || destinationField.getText().isBlank()) {
             showError("Origin and destination are required.");
             return;
         }
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        var fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String pickupText = pickupDatePicker.getValue() != null
-                ? pickupDatePicker.getValue().format(fmt)
-                : "";
+                ? pickupDatePicker.getValue().format(fmt) : "";
         String deliveryText = deliveryDatePicker.getValue() != null
-                ? deliveryDatePicker.getValue().format(fmt)
-                : "";
+                ? deliveryDatePicker.getValue().format(fmt) : "";
 
         String route = originField.getText() + "\n" + destinationField.getText();
-        String deliveryInfo = deliveryText;
+        String customer = customerField.getText().isBlank() ? "New Customer" : customerField.getText();
+        String priority = (priorityCombo.getValue() == null) ? "Medium" : priorityCombo.getValue();
+        String deliveryInfo = deliveryText.isBlank() ? "N/A" : deliveryText;
+
+
+        int value;
+        try {
+            value = valueField.getText().isBlank() ? 0 : Integer.parseInt(valueField.getText().trim());
+        } catch (NumberFormatException e) {
+            showError("Value must be a whole number (no $ or commas).");
+            return;
+        }
+
+        String weight = weightField.getText().isBlank() ? "0 lbs" : weightField.getText() + " lbs";
 
         Shipment shipment = new Shipment(
                 nextShipmentId,
                 route,
-                customerField.getText().isBlank() ? "New Customer" : customerField.getText(),
-                weightField.getText().isBlank() ? "0 lbs" : weightField.getText() + " lbs",
-                valueField.getText().isBlank() ? "$ 0" : "$ " + valueField.getText(),
-                priorityCombo.getValue() == null ? "Medium" : priorityCombo.getValue(),
+                customer,
+                weight,
+                value,
+                priority,
                 "Pending",
                 "Unassigned",
-                deliveryInfo.isBlank() ? "N/A" : deliveryInfo
+                deliveryInfo
         );
 
-        if (onShipmentCreated != null) {
-            onShipmentCreated.accept(shipment);
-        }
+        if (onShipmentCreated != null) onShipmentCreated.accept(shipment);
         closeWindow();
     }
 
