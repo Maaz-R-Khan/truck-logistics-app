@@ -11,11 +11,9 @@
             stylesheets="@styles.css"
             styleClass="main-container">
 
-    <!-- Left Sidebar -->
     <left>
         <VBox styleClass="sidebar" prefWidth="240">
 
-            <!-- Logo Section -->
             <VBox styleClass="logo-section">
                 <padding>
                     <Insets top="24" right="24" bottom="24" left="24"/>
@@ -24,12 +22,11 @@
                     <Text text="🚚" style="-fx-font-size: 32px;"/>
                     <VBox>
                         <Text text="LogiTruck" styleClass="logo-title"/>
-                        <Text text="Route Planner" styleClass="logo-subtitle"/>
+                        <Text text="Management" styleClass="logo-subtitle"/>
                     </VBox>
                 </HBox>
             </VBox>
 
-            <!-- Navigation Menu -->
             <VBox styleClass="nav-menu" VBox.vgrow="ALWAYS" spacing="4">
                 <padding>
                     <Insets top="12" right="12" bottom="12" left="12"/>
@@ -55,30 +52,20 @@
                         onAction="#loadShipments"
                         maxWidth="Infinity"/>
 
-                <Button fx:id="btnRoutePlanner" text="🗺️  Route Planner"
-                        styleClass="nav-button"
-                        onAction="#loadRoutePlanner"
-                        maxWidth="Infinity"/>
-
-                <!-- ⭐ NEW MAINTENANCE BUTTON -->
+                <!-- 🛠 Maintenance -->
                 <Button fx:id="btnMaintenance" text="🛠️  Maintenance"
                         styleClass="nav-button"
                         onAction="#loadMaintenance"
                         maxWidth="Infinity"/>
 
-                <!-- Spacer -->
                 <Region VBox.vgrow="ALWAYS"/>
-
             </VBox>
 
         </VBox>
     </left>
 
-    <!-- Main Content Area -->
     <center>
-        <StackPane fx:id="contentArea" styleClass="content-area">
-            <!-- Views will be loaded here dynamically -->
-        </StackPane>
+        <StackPane fx:id="contentArea" styleClass="content-area"/>
     </center>
 
 </BorderPane>
