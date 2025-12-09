@@ -16,7 +16,6 @@ public class MainLayoutController {
     @FXML private Button btnDrivers;
     @FXML private Button btnShipments;
     @FXML private Button btnRoutePlanner;
-    @FXML private Button btnSettings;
     @FXML private Button btnMaintenance;   // ✅ NEW
 
     @FXML
@@ -61,12 +60,6 @@ public class MainLayoutController {
         showPlaceholder("🗺️ Route Planner - Coming Soon!");
     }
 
-    @FXML
-    private void loadSettings() {
-        System.out.println("⚙️ Loading Settings...");
-        setActiveButton(btnSettings);
-        showPlaceholder("⚙️ Settings - Coming Soon!");
-    }
 
     @FXML
     private void loadMaintenance() {        // ✅ FIXED
@@ -111,7 +104,6 @@ public class MainLayoutController {
         btnDrivers.getStyleClass().remove("nav-button-active");
         btnShipments.getStyleClass().remove("nav-button-active");
         btnRoutePlanner.getStyleClass().remove("nav-button-active");
-        btnSettings.getStyleClass().remove("nav-button-active");
         btnMaintenance.getStyleClass().remove("nav-button-active"); // ✅ added
 
         // Add active class to clicked button

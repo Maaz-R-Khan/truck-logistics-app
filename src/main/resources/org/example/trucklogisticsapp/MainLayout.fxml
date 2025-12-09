@@ -69,10 +69,6 @@
                 <!-- Spacer -->
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <Button fx:id="btnSettings" text="⚙️  Settings"
-                        styleClass="nav-button"
-                        onAction="#loadSettings"
-                        maxWidth="Infinity"/>
             </VBox>
 
         </VBox>
