@@ -34,8 +34,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Active Trucks" styleClass="stat-label-small"/>
-                    <Text fx:id="lblActiveTrucks" text="24" styleClass="stat-value-large"/>
-                    <Text text="+2 from last week" styleClass="stat-trend-positive"/>
+                    <Text fx:id="lblTotalTrucks" text="4" styleClass="stat-value-large"/>
                 </VBox>
             </HBox>
         </VBox>
@@ -52,7 +51,6 @@
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Available Drivers" styleClass="stat-label-small"/>
                     <Text fx:id="lblAvailableDrivers" text="18" styleClass="stat-value-large"/>
-                    <Text text="+1 from last week" styleClass="stat-trend-positive"/>
                 </VBox>
             </HBox>
         </VBox>
@@ -68,8 +66,7 @@
                 </StackPane>
                 <VBox HBox.hgrow="ALWAYS">
                     <Text text="Pending Shipments" styleClass="stat-label-small"/>
-                    <Text fx:id="lblPendingShipments" text="42" styleClass="stat-value-large"/>
-                    <Text text="-5 from last week" styleClass="stat-trend-negative"/>
+                    <Text fx:id="lblPendingShipments" text="5" styleClass="stat-value-large"/>
                 </VBox>
             </HBox>
         </VBox>
@@ -78,51 +75,6 @@
     <!-- Content Row -->
     <HBox spacing="20" VBox.vgrow="ALWAYS">
         <!-- Fleet Utilization Card -->
-        <VBox styleClass="content-card" HBox.hgrow="SOMETIMES" prefWidth="400">
-            <padding>
-                <Insets top="24" right="24" bottom="24" left="24"/>
-            </padding>
-
-            <HBox alignment="CENTER_LEFT" spacing="8">
-                <Text text="📈" style="-fx-font-size: 20px;"/>
-                <Text text="Fleet Utilization" styleClass="section-title"/>
-            </HBox>
-
-            <Text text="Current capacity usage across all trucks" styleClass="section-subtitle">
-                <VBox.margin>
-                    <Insets top="4" bottom="20"/>
-                </VBox.margin>
-            </Text>
-
-            <VBox spacing="20">
-                <!-- Average Load -->
-                <VBox spacing="8">
-                    <HBox alignment="CENTER_LEFT">
-                        <Text text="Average Load" styleClass="metric-label" HBox.hgrow="ALWAYS"/>
-                        <Text text="78%" styleClass="metric-value"/>
-                    </HBox>
-                    <ProgressBar progress="0.78" maxWidth="Infinity" styleClass="progress-bar-blue"/>
-                </VBox>
-
-                <!-- Fuel Efficiency -->
-                <VBox spacing="8">
-                    <HBox alignment="CENTER_LEFT">
-                        <Text text="Fuel Efficiency" styleClass="metric-label" HBox.hgrow="ALWAYS"/>
-                        <Text text="92%" styleClass="metric-value"/>
-                    </HBox>
-                    <ProgressBar progress="0.92" maxWidth="Infinity" styleClass="progress-bar-green"/>
-                </VBox>
-
-                <!-- On-Time Delivery -->
-                <VBox spacing="8">
-                    <HBox alignment="CENTER_LEFT">
-                        <Text text="On-Time Delivery" styleClass="metric-label" HBox.hgrow="ALWAYS"/>
-                        <Text text="85%" styleClass="metric-value"/>
-                    </HBox>
-                    <ProgressBar progress="0.85" maxWidth="Infinity" styleClass="progress-bar-purple"/>
-                </VBox>
-            </VBox>
-        </VBox>
 
         <!-- Recent Shipments Card -->
         <VBox styleClass="content-card" HBox.hgrow="ALWAYS">
@@ -148,16 +100,11 @@
                         <Text text="📦" style="-fx-font-size: 20px;"/>
                     </StackPane>
                     <VBox HBox.hgrow="ALWAYS">
-                        <Text text="SH001" styleClass="shipment-id"/>
+                        <Text text="SH002" styleClass="shipment-id"/>
                         <Text text="Los Angeles, CA" styleClass="shipment-location"/>
                     </VBox>
                     <VBox alignment="CENTER_RIGHT">
-                        <Label text="In Transit" styleClass="status-badge-blue"/>
-                        <Text text="John Smith" styleClass="shipment-driver"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT">
-                        <Text text="2 hours" styleClass="shipment-time"/>
-                        <Text text="ETA" styleClass="shipment-eta-label"/>
+                        <Label text="Pending" styleClass="status-badge-blue"/>
                     </VBox>
                 </HBox>
 
@@ -167,16 +114,11 @@
                         <Text text="📦" style="-fx-font-size: 20px;"/>
                     </StackPane>
                     <VBox HBox.hgrow="ALWAYS">
-                        <Text text="SH002" styleClass="shipment-id"/>
-                        <Text text="Phoenix, AZ" styleClass="shipment-location"/>
+                        <Text text="SH003" styleClass="shipment-id"/>
+                        <Text text="New Jersey, AZ" styleClass="shipment-location"/>
                     </VBox>
                     <VBox alignment="CENTER_RIGHT">
-                        <Label text="Delivered" styleClass="status-badge-green"/>
-                        <Text text="Sarah Johnson" styleClass="shipment-driver"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT">
-                        <Text text="Completed" styleClass="shipment-time"/>
-                        <Text text="ETA" styleClass="shipment-eta-label"/>
+                        <Label text="Pending" styleClass="status-badge-green"/>
                     </VBox>
                 </HBox>
 
@@ -186,16 +128,11 @@
                         <Text text="📦" style="-fx-font-size: 20px;"/>
                     </StackPane>
                     <VBox HBox.hgrow="ALWAYS">
-                        <Text text="SH003" styleClass="shipment-id"/>
-                        <Text text="Denver, CO" styleClass="shipment-location"/>
+                        <Text text="SH004" styleClass="shipment-id"/>
+                        <Text text="New York, NY" styleClass="shipment-location"/>
                     </VBox>
                     <VBox alignment="CENTER_RIGHT">
-                        <Label text="Loading" styleClass="status-badge-yellow"/>
-                        <Text text="Mike Wilson" styleClass="shipment-driver"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT">
-                        <Text text="4 hours" styleClass="shipment-time"/>
-                        <Text text="ETA" styleClass="shipment-eta-label"/>
+                        <Label text="Pending" styleClass="status-badge-yellow"/>
                     </VBox>
                 </HBox>
 
@@ -205,16 +142,11 @@
                         <Text text="📦" style="-fx-font-size: 20px;"/>
                     </StackPane>
                     <VBox HBox.hgrow="ALWAYS">
-                        <Text text="SH004" styleClass="shipment-id"/>
-                        <Text text="Seattle, WA" styleClass="shipment-location"/>
+                        <Text text="SH005" styleClass="shipment-id"/>
+                        <Text text="Philadelphia, PA" styleClass="shipment-location"/>
                     </VBox>
                     <VBox alignment="CENTER_RIGHT">
                         <Label text="Pending" styleClass="status-badge-gray"/>
-                        <Text text="Unassigned" styleClass="shipment-driver"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT">
-                        <Text text="6 hours" styleClass="shipment-time"/>
-                        <Text text="ETA" styleClass="shipment-eta-label"/>
                     </VBox>
                 </HBox>
 
@@ -224,16 +156,11 @@
                         <Text text="📦" style="-fx-font-size: 20px;"/>
                     </StackPane>
                     <VBox HBox.hgrow="ALWAYS">
-                        <Text text="SH005" styleClass="shipment-id"/>
-                        <Text text="Dallas, TX" styleClass="shipment-location"/>
+                        <Text text="SH006" styleClass="shipment-id"/>
+                        <Text text="New York, NY" styleClass="shipment-location"/>
                     </VBox>
                     <VBox alignment="CENTER_RIGHT">
                         <Label text="In Transit" styleClass="status-badge-blue"/>
-                        <Text text="Lisa Brown" styleClass="shipment-driver"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT">
-                        <Text text="3 hours" styleClass="shipment-time"/>
-                        <Text text="ETA" styleClass="shipment-eta-label"/>
                     </VBox>
                 </HBox>
             </VBox>
