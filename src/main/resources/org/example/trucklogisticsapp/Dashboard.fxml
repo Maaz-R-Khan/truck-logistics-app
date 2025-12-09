@@ -73,23 +73,6 @@
                 </VBox>
             </HBox>
         </VBox>
-
-        <!-- Routes Optimized -->
-        <VBox styleClass="dashboard-stat-card" HBox.hgrow="ALWAYS">
-            <padding>
-                <Insets top="24" right="24" bottom="24" left="24"/>
-            </padding>
-            <HBox alignment="CENTER_LEFT" spacing="12">
-                <StackPane styleClass="stat-icon-purple">
-                    <Text text="🗺️" style="-fx-font-size: 24px;"/>
-                </StackPane>
-                <VBox HBox.hgrow="ALWAYS">
-                    <Text text="Routes Optimized" styleClass="stat-label-small"/>
-                    <Text fx:id="lblRoutesOptimized" text="156" styleClass="stat-value-large"/>
-                    <Text text="+12 from last week" styleClass="stat-trend-positive"/>
-                </VBox>
-            </HBox>
-        </VBox>
     </HBox>
 
     <!-- Content Row -->
@@ -257,30 +240,6 @@
         </VBox>
     </HBox>
 
-    <!-- System Alerts -->
-    <VBox styleClass="alerts-section" spacing="12">
-        <HBox alignment="CENTER_LEFT" spacing="8">
-            <Text text="⚠️" style="-fx-font-size: 18px;"/>
-            <Text text="System Alerts" styleClass="section-title"/>
-        </HBox>
 
-        <!-- Alert 1 -->
-        <HBox styleClass="alert-box-warning" spacing="16" alignment="CENTER_LEFT">
-            <Text text="⏰" style="-fx-font-size: 24px;"/>
-            <VBox HBox.hgrow="ALWAYS">
-                <Text text="Truck TRK-024 requires maintenance" styleClass="alert-title"/>
-                <Text text="Scheduled maintenance due in 2 days" styleClass="alert-subtitle"/>
-            </VBox>
-        </HBox>
-
-        <!-- Alert 2 -->
-        <HBox styleClass="alert-box-success" spacing="16" alignment="CENTER_LEFT">
-            <Text text="✅" style="-fx-font-size: 24px;"/>
-            <VBox HBox.hgrow="ALWAYS">
-                <Text text="Route optimization completed" styleClass="alert-title"/>
-                <Text text="Saved 15% on fuel costs for today's routes" styleClass="alert-subtitle"/>
-            </VBox>
-        </HBox>
-    </VBox>
 
 </VBox>
