@@ -6,7 +6,6 @@ import javafx.stage.Stage;
 import org.example.trucklogisticsapp.model.Driver;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 public class EditDriverDialogController {
 
@@ -39,7 +38,6 @@ public class EditDriverDialogController {
     public void initialize() {
         System.out.println("✅ EditDriverDialogController initialized");
 
-        // Populate License States
         cmbLicenseState.getItems().addAll(
                 "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
                 "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
@@ -53,15 +51,12 @@ public class EditDriverDialogController {
                 "West Virginia", "Wisconsin", "Wyoming"
         );
 
-        // Populate License Classes
         cmbLicenseClass.getItems().addAll("Class A", "Class B", "Class C");
     }
 
     public void setDriver(Driver driver) {
         this.driver = driver;
-        System.out.println("📝 Loading driver data for editing: " + driver.getFullName());
 
-        // Populate fields
         txtFirstName.setText(driver.getFirstName());
         txtLastName.setText(driver.getLastName());
         txtEmail.setText(driver.getEmail());
@@ -69,152 +64,84 @@ public class EditDriverDialogController {
         txtAddress.setText(driver.getAddress());
         txtLicenseNumber.setText(driver.getLicenseNumber());
 
-        if (driver.getDateOfBirth() != null) {
-            dateOfBirth.setValue(driver.getDateOfBirth());
-        }
-
-        if (driver.getHireDate() != null) {
-            dateHire.setValue(driver.getHireDate());
-        }
+        // Convert String → LocalDate for DatePicker
+        dateOfBirth.setValue(parseDate(driver.getDateOfBirth()));
+        dateHire.setValue(parseDate(driver.getHireDate()));
+        dateLicenseExpiration.setValue(parseDate(driver.getLicenseExpiry()));
+        dateMedicalExpiration.setValue(parseDate(driver.getMedicalCertExpiry()));
 
         cmbLicenseState.setValue(driver.getLicenseState());
         cmbLicenseClass.setValue(driver.getLicenseClass());
-
-        if (driver.getLicenseExpiry() != null) {
-            dateLicenseExpiration.setValue(driver.getLicenseExpiry());
-        }
-
-        if (driver.getMedicalCertExpiry() != null) {
-            dateMedicalExpiration.setValue(driver.getMedicalCertExpiry());
-        }
 
         chkHazmat.setSelected(driver.isHazmatEndorsement());
         chkTankers.setSelected(driver.isTankersEndorsement());
         chkDoubles.setSelected(driver.isDoublesEndorsement());
         chkAvailable.setSelected(driver.isAvailable());
+
         txtNotes.setText(driver.getNotes() != null ? driver.getNotes() : "");
 
-        System.out.println("✅ Driver data loaded successfully");
+        System.out.println("✅ Driver loaded for editing");
     }
 
-    public boolean wasDeleted() {
-        return deleted;
+    // Helper to convert String → LocalDate
+    private LocalDate parseDate(String value) {
+        try {
+            return (value == null || value.isBlank()) ? null : LocalDate.parse(value);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Helper to convert LocalDate → String
+    private String format(LocalDate d) {
+        return d == null ? null : d.toString();
     }
 
     @FXML
     private void handleSave() {
-        System.out.println("💾 Attempting to save changes...");
+        if (!validateInput()) return;
 
-        if (!validateInput()) {
-            return;
-        }
+        driver.setFirstName(txtFirstName.getText().trim());
+        driver.setLastName(txtLastName.getText().trim());
+        driver.setEmail(txtEmail.getText().trim());
+        driver.setPhone(txtPhone.getText().trim());
+        driver.setAddress(txtAddress.getText().trim());
+        driver.setLicenseNumber(txtLicenseNumber.getText().trim());
+        driver.setLicenseState(cmbLicenseState.getValue());
+        driver.setLicenseClass(cmbLicenseClass.getValue());
 
-        try {
-            driver.setFirstName(txtFirstName.getText().trim());
-            driver.setLastName(txtLastName.getText().trim());
-            driver.setEmail(txtEmail.getText().trim());
-            driver.setPhone(txtPhone.getText().trim());
-            driver.setAddress(txtAddress.getText().trim());
-            driver.setLicenseNumber(txtLicenseNumber.getText().trim());
-            driver.setLicenseState(cmbLicenseState.getValue());
-            driver.setLicenseClass(cmbLicenseClass.getValue());
+        // Convert back LocalDate → String for Firestore
+        driver.setDateOfBirth(format(dateOfBirth.getValue()));
+        driver.setHireDate(format(dateHire.getValue()));
+        driver.setLicenseExpiry(format(dateLicenseExpiration.getValue()));
+        driver.setMedicalCertExpiry(format(dateMedicalExpiration.getValue()));
 
-            if (dateOfBirth.getValue() != null) {
-                driver.setDateOfBirth(dateOfBirth.getValue());
-            }
+        driver.setHazmatEndorsement(chkHazmat.isSelected());
+        driver.setTankersEndorsement(chkTankers.isSelected());
+        driver.setDoublesEndorsement(chkDoubles.isSelected());
+        driver.setAvailable(chkAvailable.isSelected());
+        driver.setNotes(txtNotes.getText());
 
-            if (dateHire.getValue() != null) {
-                driver.setHireDate(dateHire.getValue());
-            }
+        System.out.println("💾 Driver saved: " + driver.getFullName());
 
-            if (dateLicenseExpiration.getValue() != null) {
-                driver.setLicenseExpiry(dateLicenseExpiration.getValue());
-            }
-
-            if (dateMedicalExpiration.getValue() != null) {
-                driver.setMedicalCertExpiry(dateMedicalExpiration.getValue());
-            }
-
-            driver.setHazmatEndorsement(chkHazmat.isSelected());
-            driver.setTankersEndorsement(chkTankers.isSelected());
-            driver.setDoublesEndorsement(chkDoubles.isSelected());
-            driver.setAvailable(chkAvailable.isSelected());
-            driver.setNotes(txtNotes.getText());
-
-            System.out.println("✅ Driver updated successfully: " + driver.getFullName());
-
-            Stage stage = (Stage) txtFirstName.getScene().getWindow();
-            stage.close();
-
-        } catch (Exception e) {
-            System.err.println("❌ Error saving driver: " + e.getMessage());
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to save driver: " + e.getMessage());
-        }
+        ((Stage) txtFirstName.getScene().getWindow()).close();
     }
 
-    @FXML
-    private void handleDelete() {
-        System.out.println("🗑️ Delete button clicked for: " + driver.getFullName());
+    private boolean validateInput() {
+        if (txtFirstName.getText().trim().isEmpty()) return showValidation("First name is required.");
+        if (txtLastName.getText().trim().isEmpty()) return showValidation("Last name is required.");
+        if (txtLicenseNumber.getText().trim().isEmpty()) return showValidation("License number is required.");
+        return true;
+    }
 
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Delete Driver");
-        confirmation.setHeaderText("Delete " + driver.getFullName() + "?");
-        confirmation.setContentText(
-                "Are you sure you want to delete this driver?\n\n" +
-                        "Name: " + driver.getFullName() + "\n" +
-                        "License: " + driver.getLicenseNumber() + "\n\n" +
-                        "This action cannot be undone!"
-        );
-
-        ButtonType deleteButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        confirmation.getButtonTypes().setAll(deleteButton, cancelButton);
-
-        Optional<ButtonType> result = confirmation.showAndWait();
-
-        if (result.isPresent() && result.get() == deleteButton) {
-            deleted = true;
-            System.out.println("✅ Driver deletion confirmed by user");
-
-            showAlert(Alert.AlertType.INFORMATION, "Driver Deleted",
-                    "Driver " + driver.getFullName() + " has been deleted successfully.");
-
-            Stage stage = (Stage) txtFirstName.getScene().getWindow();
-            stage.close();
-        } else {
-            System.out.println("❌ Driver deletion cancelled by user");
-        }
+    private boolean showValidation(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
+        alert.showAndWait();
+        return false;
     }
 
     @FXML
     private void handleCancel() {
-        System.out.println("❌ Edit cancelled by user");
-        Stage stage = (Stage) txtFirstName.getScene().getWindow();
-        stage.close();
-    }
-
-    private boolean validateInput() {
-        if (txtFirstName.getText().trim().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "First name is required.");
-            return false;
-        }
-        if (txtLastName.getText().trim().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "Last name is required.");
-            return false;
-        }
-        if (txtLicenseNumber.getText().trim().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Validation Error", "License number is required.");
-            return false;
-        }
-        return true;
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        ((Stage) txtFirstName.getScene().getWindow()).close();
     }
 }

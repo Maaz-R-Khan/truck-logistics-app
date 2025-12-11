@@ -82,11 +82,11 @@ public class AddDriverDialogController {
                 );
 
                 if (dateOfBirth.getValue() != null) {
-                    driver.setDateOfBirth(dateOfBirth.getValue());
+                    driver.setDateOfBirth(dateOfBirth.getValue().toString());
                 }
 
                 if (dateHire.getValue() != null) {
-                    driver.setHireDate(dateHire.getValue());
+                    driver.setHireDate(dateHire.getValue().toString());
                 }
 
                 if (!txtAddress.getText().trim().isEmpty()) {
@@ -96,11 +96,11 @@ public class AddDriverDialogController {
                 driver.setLicenseClass(cmbLicenseClass.getValue());
 
                 if (dateLicenseExpiration.getValue() != null) {
-                    driver.setLicenseExpiry(dateLicenseExpiration.getValue());
+                    driver.setLicenseExpiry(dateLicenseExpiration.getValue().toString());
                 }
 
                 if (dateMedicalExpiration.getValue() != null) {
-                    driver.setMedicalCertExpiry(dateMedicalExpiration.getValue());
+                    driver.setMedicalCertExpiry(dateMedicalExpiration.getValue().toString());
                 }
 
                 driver.setHazmatEndorsement(chkHazmat.isSelected());

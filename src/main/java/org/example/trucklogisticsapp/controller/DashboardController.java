@@ -2,27 +2,24 @@ package org.example.trucklogisticsapp.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
-
 public class DashboardController {
 
-    @FXML private Text lblActiveTrucks;
+    @FXML private Text lblTotalTrucks;
     @FXML private Text lblAvailableDrivers;
     @FXML private Text lblPendingShipments;
-    @FXML private Text lblRoutesOptimized;
 
     @FXML
     public void initialize() {
-        System.out.println("✅ DashboardController initialized");
-        loadDashboardData();
+    System.out.println("✅ DashboardController initialized");
+    loadDashboardData();
     }
 
     private void loadDashboardData() {
-        // Load sample data
-        lblActiveTrucks.setText("24");
-        lblAvailableDrivers.setText("18");
-        lblPendingShipments.setText("42");
-        lblRoutesOptimized.setText("156");
+    // Load sample data
+    lblTotalTrucks.setText("10");
+    lblAvailableDrivers.setText("1");
+    lblPendingShipments.setText("5");
 
-        System.out.println("📊 Dashboard data loaded");
+    System.out.println("📊 Dashboard data loaded");
     }
 }
