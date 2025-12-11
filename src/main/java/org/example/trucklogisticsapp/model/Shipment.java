@@ -1,49 +1,28 @@
 package org.example.trucklogisticsapp.model;
 
-import com.google.cloud.firestore.annotation.PropertyName;
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+// imports to add at top
+import javafx.beans.value.ObservableValue;
+
 
 public class Shipment {
 
-    private final StringProperty shipmentId = new SimpleStringProperty();
-    private final StringProperty route = new SimpleStringProperty();
-    private final StringProperty customer = new SimpleStringProperty();
-    private final StringProperty weight = new SimpleStringProperty();
-    private final IntegerProperty value = new SimpleIntegerProperty();
-    private final StringProperty priority = new SimpleStringProperty();
-    private final StringProperty status = new SimpleStringProperty();
-    private final StringProperty assignment = new SimpleStringProperty();
-    private final StringProperty delivery = new SimpleStringProperty();
 
-    // Required for Firestore
+    private StringProperty shipmentId = new SimpleStringProperty();
+    private StringProperty route = new SimpleStringProperty();
+    private StringProperty customer = new SimpleStringProperty();
+    private StringProperty weight = new SimpleStringProperty();
+    private IntegerProperty value = new SimpleIntegerProperty();
+    private StringProperty priority = new SimpleStringProperty();
+    private StringProperty status = new SimpleStringProperty();
+    private StringProperty assignment = new SimpleStringProperty();
+    private StringProperty delivery = new SimpleStringProperty();
+
     public Shipment() {}
 
-    // ========== FIRESTORE SAFE SETTERS ==========
-    @PropertyName("value")
-    public void setValueFromFirestore(Object v) {
-        if (v == null) {
-            this.value.set(0);
-        } else if (v instanceof Number) {
-            this.value.set(((Number) v).intValue());
-        } else {
-            try {
-                this.value.set(Integer.parseInt(v.toString()));
-            } catch (Exception e) {
-                this.value.set(0);
-            }
-        }
-    }
-
-    @PropertyName("weight")
-    public void setWeightFromFirestore(Object w) {
-        if (w == null) {
-            this.weight.set("");
-        } else {
-            this.weight.set(w.toString());
-        }
-    }
-
-    // Constructor for manual creation
     public Shipment(String shipmentId,
                     String route,
                     String customer,
@@ -65,7 +44,6 @@ public class Shipment {
         this.delivery.set(delivery);
     }
 
-    // GETTERS
     public String getShipmentId() { return shipmentId.get(); }
     public String getRoute() { return route.get(); }
     public String getCustomer() { return customer.get(); }
@@ -76,7 +54,6 @@ public class Shipment {
     public String getAssignment() { return assignment.get(); }
     public String getDelivery() { return delivery.get(); }
 
-    // SETTERS
     public void setShipmentId(String shipmentId) { this.shipmentId.set(shipmentId); }
     public void setRoute(String route) { this.route.set(route); }
     public void setCustomer(String customer) { this.customer.set(customer); }
@@ -87,7 +64,6 @@ public class Shipment {
     public void setAssignment(String assignment) { this.assignment.set(assignment); }
     public void setDelivery(String delivery) { this.delivery.set(delivery); }
 
-    // PROPERTY GETTERS
     public StringProperty shipmentIdProperty() { return shipmentId; }
     public StringProperty routeProperty() { return route; }
     public StringProperty customerProperty() { return customer; }

@@ -1,6 +1,5 @@
 package org.example.trucklogisticsapp.controller;
 
-
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -39,7 +38,6 @@ public class AddShipmentController {
         valueField.setTextFormatter(new TextFormatter<>(change ->
                 change.getControlNewText().matches("\\d*") ? change : null
         ));
-
     }
 
     @FXML
@@ -56,25 +54,30 @@ public class AddShipmentController {
 
         var fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String pickupText = pickupDatePicker.getValue() != null
-                ? pickupDatePicker.getValue().format(fmt) : "";
+                ? pickupDatePicker.getValue().format(fmt)
+                : "";
         String deliveryText = deliveryDatePicker.getValue() != null
-                ? deliveryDatePicker.getValue().format(fmt) : "";
+                ? deliveryDatePicker.getValue().format(fmt)
+                : "";
 
         String route = originField.getText() + "\n" + destinationField.getText();
         String customer = customerField.getText().isBlank() ? "New Customer" : customerField.getText();
-        String priority = (priorityCombo.getValue() == null) ? "Medium" : priorityCombo.getValue();
+        String priority = priorityCombo.getValue() == null ? "Medium" : priorityCombo.getValue();
         String deliveryInfo = deliveryText.isBlank() ? "N/A" : deliveryText;
-
 
         int value;
         try {
-            value = valueField.getText().isBlank() ? 0 : Integer.parseInt(valueField.getText().trim());
+            value = valueField.getText().isBlank()
+                    ? 0
+                    : Integer.parseInt(valueField.getText().trim());
         } catch (NumberFormatException e) {
             showError("Value must be a whole number (no $ or commas).");
             return;
         }
 
-        String weight = weightField.getText().isBlank() ? "0 lbs" : weightField.getText() + " lbs";
+        String weight = weightField.getText().isBlank()
+                ? "0 lbs"
+                : weightField.getText() + " lbs";
 
         Shipment shipment = new Shipment(
                 nextShipmentId,
@@ -88,7 +91,10 @@ public class AddShipmentController {
                 deliveryInfo
         );
 
-        if (onShipmentCreated != null) onShipmentCreated.accept(shipment);
+        if (onShipmentCreated != null) {
+            onShipmentCreated.accept(shipment);
+        }
+
         closeWindow();
     }
 

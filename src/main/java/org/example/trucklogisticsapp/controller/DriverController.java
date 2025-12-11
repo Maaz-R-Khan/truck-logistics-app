@@ -1,5 +1,11 @@
 package org.example.trucklogisticsapp.controller;
 
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,7 +14,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -34,223 +39,192 @@ public class DriverController {
     @FXML private TableColumn<Driver, String> colEndorsements;
     @FXML private TableColumn<Driver, Void> colActions;
 
-    private ObservableList<Driver> driverList = FXCollections.observableArrayList();
+    private final ObservableList<Driver> driverList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         System.out.println("✅ DriverController initialized");
         setupTable();
-        loadSampleData();
-        updateStats();
+        loadDriversFromFirestore();
     }
 
+    // -------------------------------------------------------
+    // TABLE SETUP
+    // -------------------------------------------------------
     private void setupTable() {
-        // Setup columns
-        colDriverId.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-        // Name column - show full name
-        colName.setCellValueFactory(data -> {
-            Driver driver = data.getValue();
-            return new javafx.beans.property.SimpleStringProperty(driver.getFullName());
-        });
+        colDriverId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getId()));
 
-        colLicense.setCellValueFactory(new PropertyValueFactory<>("licenseNumber"));
-        colPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        colName.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getFullName())
+        );
 
-        // Status column with badges
-        colStatus.setCellValueFactory(data -> {
-            Driver driver = data.getValue();
-            return new javafx.beans.property.SimpleStringProperty(
-                    driver.isAvailable() ? "Available" : "Assigned"
-            );
-        });
-        colStatus.setCellFactory(col -> new TableCell<Driver, String>() {
+        colLicense.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getLicenseNumber())
+        );
+
+        colPhone.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getPhone())
+        );
+
+        colStatus.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(
+                        data.getValue().isAvailable() ? "Available" : "Assigned"
+                )
+        );
+
+        colStatus.setCellFactory(col -> new TableCell<>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
                     setGraphic(null);
-                } else {
-                    Label badge = new Label(item);
-                    if (item.equals("Available")) {
-                        badge.getStyleClass().add("status-badge-green");
-                    } else {
-                        badge.getStyleClass().add("status-badge-blue");
-                    }
-                    setGraphic(badge);
+                    return;
                 }
+                Label badge = new Label(status);
+                badge.getStyleClass().add(status.equals("Available") ?
+                        "status-badge-green" : "status-badge-blue");
+                setGraphic(badge);
             }
         });
 
-        // Compliance column with color coding
-        colCompliance.setCellValueFactory(data -> {
-            Driver driver = data.getValue();
-            return new javafx.beans.property.SimpleStringProperty(driver.getComplianceStatus());
-        });
-        colCompliance.setCellFactory(col -> new TableCell<Driver, String>() {
+        colCompliance.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getComplianceStatus())
+        );
+
+        colCompliance.setCellFactory(col -> new TableCell<>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(String compliance, boolean empty) {
+                super.updateItem(compliance, empty);
+                if (empty || compliance == null) {
                     setGraphic(null);
-                } else {
-                    Label badge = new Label(item);
-                    if (item.equals("Compliant")) {
-                        badge.getStyleClass().add("status-badge-green");
-                    } else if (item.contains("Expiring")) {
-                        badge.getStyleClass().add("status-badge-yellow");
-                    } else {
-                        badge.getStyleClass().add("status-badge-red");
-                    }
-                    setGraphic(badge);
+                    return;
                 }
+                Label badge = new Label(compliance);
+                if (compliance.equals("Compliant")) {
+                    badge.getStyleClass().add("status-badge-green");
+                } else if (compliance.contains("Expiring")) {
+                    badge.getStyleClass().add("status-badge-yellow");
+                } else {
+                    badge.getStyleClass().add("status-badge-red");
+                }
+                setGraphic(badge);
             }
         });
 
-        // Endorsements column
-        colEndorsements.setCellValueFactory(data -> {
-            Driver driver = data.getValue();
-            return new javafx.beans.property.SimpleStringProperty(driver.getEndorsements());
-        });
+        colEndorsements.setCellValueFactory(data ->
+                new javafx.beans.property.SimpleStringProperty(data.getValue().getEndorsements())
+        );
 
-        // Actions column with styled buttons
-        colActions.setCellFactory(col -> new TableCell<Driver, Void>() {
-            private final Button btnEdit = createStyledButton("✏️", "#007bff", "Edit driver details");
-            private final Button btnView = createStyledButton("👁️", "#17a2b8", "View full details");
-            private final Button btnAssign = createStyledButton("🚛", "#28a745", "Assign to truck");
+        colActions.setCellFactory(col -> new TableCell<>() {
+            private final Button btnEdit = iconButton("✏️", "#007bff", "Edit driver");
+            private final Button btnView = iconButton("👁️", "#17a2b8", "View details");
+            private final Button btnAssign = iconButton("🚛", "#28a745", "Assign");
 
             {
-                btnEdit.setOnAction(e -> {
-                    Driver driver = getTableView().getItems().get(getIndex());
-                    handleEditDriver(driver);
-                });
-
-                btnView.setOnAction(e -> {
-                    Driver driver = getTableView().getItems().get(getIndex());
-                    handleViewDriver(driver);
-                });
-
-                btnAssign.setOnAction(e -> {
-                    Driver driver = getTableView().getItems().get(getIndex());
-                    handleAssignDriver(driver);
-                });
+                btnEdit.setOnAction(e -> handleEditDriver(getItemAtIndex()));
+                btnView.setOnAction(e -> handleViewDriver(getItemAtIndex()));
+                btnAssign.setOnAction(e -> handleAssignDriver(getItemAtIndex()));
             }
 
-            private Button createStyledButton(String icon, String color, String tooltipText) {
+            private Driver getItemAtIndex() {
+                return getTableView().getItems().get(getIndex());
+            }
+
+            private Button iconButton(String icon, String color, String tooltip) {
                 Button btn = new Button(icon);
-                btn.setStyle(
-                        "-fx-background-color: " + color + "; " +
-                                "-fx-text-fill: white; " +
-                                "-fx-font-size: 14px; " +
-                                "-fx-min-width: 32px; " +
-                                "-fx-min-height: 32px; " +
-                                "-fx-background-radius: 5; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-padding: 4;"
-                );
-
-                btn.setOnMouseEntered(e -> btn.setStyle(
-                        btn.getStyle() + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);"
-                ));
-                btn.setOnMouseExited(e -> btn.setStyle(
-                        btn.getStyle().replace("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);", "")
-                ));
-
-                btn.setTooltip(new Tooltip(tooltipText));
+                btn.setStyle("-fx-background-color:" + color +
+                        "; -fx-text-fill:white; -fx-font-size:14px; -fx-min-width:32px;" +
+                        " -fx-min-height:32px; -fx-background-radius:5; -fx-padding:4;");
+                btn.setTooltip(new Tooltip(tooltip));
                 return btn;
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    HBox buttons = new HBox(6, btnEdit, btnView, btnAssign);
-                    buttons.setAlignment(Pos.CENTER_LEFT);
-                    setGraphic(buttons);
-                }
+                if (empty) setGraphic(null);
+                else setGraphic(new HBox(8, btnEdit, btnView, btnAssign));
             }
         });
 
         driverTable.setItems(driverList);
     }
 
-    private void loadSampleData() {
-        // Sample driver data
-        Driver driver1 = new Driver("John", "Smith", "D1234567", "California", "555-123-4567", "john.smith@email.com");
-        driver1.setId("DRV-001");
-        driver1.setDateOfBirth(LocalDate.of(1985, 5, 15));
-        driver1.setHireDate(LocalDate.of(2020, 6, 1));
-        driver1.setLicenseClass("Class A");
-        driver1.setLicenseExpiry(LocalDate.of(2027, 12, 31));
-        driver1.setMedicalCertExpiry(LocalDate.of(2025, 8, 15));
-        driver1.setHazmatEndorsement(true);
-        driver1.setTankersEndorsement(true);
-        driver1.setAvailable(true);
-        driver1.setRating(4.8);
-        driver1.setTotalTrips(245);
-        driver1.setTotalMiles(125000);
+    // -------------------------------------------------------
+    // LOAD DATA FROM FIRESTORE
+    // -------------------------------------------------------
+    private void loadDriversFromFirestore() {
+        new Thread(() -> {
+            try {
+                Firestore db = FirestoreContext.getDB();
+                ApiFuture<QuerySnapshot> future = db.collection("drivers").get();
+                QuerySnapshot snapshot = future.get();
 
-        Driver driver2 = new Driver("Jane", "Doe", "D7654321", "Texas", "555-987-6543", "jane.doe@email.com");
-        driver2.setId("DRV-002");
-        driver2.setDateOfBirth(LocalDate.of(1990, 8, 20));
-        driver2.setHireDate(LocalDate.of(2021, 3, 15));
-        driver2.setLicenseClass("Class A");
-        driver2.setLicenseExpiry(LocalDate.of(2028, 6, 30));
-        driver2.setMedicalCertExpiry(LocalDate.of(2026, 2, 28));
-        driver2.setHazmatEndorsement(true);
-        driver2.setAvailable(false);
-        driver2.setAssignedTruckId("TRK-001");
-        driver2.setRating(4.9);
-        driver2.setTotalTrips(189);
-        driver2.setTotalMiles(98000);
+                ObservableList<Driver> loadedDrivers = FXCollections.observableArrayList();
 
-        Driver driver3 = new Driver("Bob", "Johnson", "D9876543", "Florida", "555-456-7890", "bob.johnson@email.com");
-        driver3.setId("DRV-003");
-        driver3.setDateOfBirth(LocalDate.of(1982, 3, 10));
-        driver3.setHireDate(LocalDate.of(2019, 1, 10));
-        driver3.setLicenseClass("Class A");
-        driver3.setLicenseExpiry(LocalDate.of(2026, 9, 15));
-        driver3.setMedicalCertExpiry(LocalDate.of(2025, 12, 1));
-        driver3.setDoublesEndorsement(true);
-        driver3.setAvailable(true);
-        driver3.setRating(4.7);
-        driver3.setTotalTrips(312);
-        driver3.setTotalMiles(156000);
+                for (QueryDocumentSnapshot doc : snapshot.getDocuments()) {
+                    Driver driver = doc.toObject(Driver.class);
 
-        Driver driver4 = new Driver("Alice", "Brown", "D4567890", "New York", "555-234-5678", "alice.brown@email.com");
-        driver4.setId("DRV-004");
-        driver4.setDateOfBirth(LocalDate.of(1988, 11, 25));
-        driver4.setHireDate(LocalDate.of(2022, 7, 1));
-        driver4.setLicenseClass("Class B");
-        driver4.setLicenseExpiry(LocalDate.of(2027, 3, 31));
-        driver4.setMedicalCertExpiry(LocalDate.of(2025, 9, 30));
-        driver4.setAvailable(false);
-        driver4.setAssignedTruckId("TRK-003");
-        driver4.setRating(4.6);
-        driver4.setTotalTrips(156);
-        driver4.setTotalMiles(87000);
+                    if (driver.getId() == null || driver.getId().isEmpty()) {
+                        driver.setId(doc.getId());
+                    }
 
-        driverList.addAll(driver1, driver2, driver3, driver4);
-        System.out.println("📦 Loaded " + driverList.size() + " drivers");
+                    loadedDrivers.add(driver);
+                }
+
+                Platform.runLater(() -> {
+                    driverList.clear();
+                    driverList.addAll(loadedDrivers);
+                    updateStats();
+                    System.out.println("📦 Loaded " + loadedDrivers.size() + " drivers from Firestore");
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() ->
+                        showAlert(Alert.AlertType.ERROR, "Firestore Error",
+                                "Could not load drivers:\n" + e.getMessage())
+                );
+            }
+        }).start();
     }
 
-    private void updateStats() {
-        lblTotalDrivers.setText(String.valueOf(driverList.size()));
+    // -------------------------------------------------------
+    // SAVE DRIVER TO FIRESTORE
+    // -------------------------------------------------------
+    private void saveDriverToFirestore(Driver driver) {
+        new Thread(() -> {
+            try {
+                Firestore db = FirestoreContext.getDB();
 
-        long available = driverList.stream().filter(Driver::isAvailable).count();
-        lblAvailableDrivers.setText(String.valueOf(available));
+                String docId = (driver.getId() != null && !driver.getId().isEmpty())
+                        ? driver.getId()
+                        : db.collection("drivers").document().getId();
 
-        double avgRating = driverList.stream()
-                .mapToDouble(Driver::getRating)
-                .average()
-                .orElse(0);
-        lblAvgRating.setText(String.format("%.1f", avgRating));
+                if (driver.getId() == null || driver.getId().isEmpty()) {
+                    driver.setId(docId);
+                }
 
-        System.out.println("📊 Stats updated");
+                ApiFuture<WriteResult> future =
+                        db.collection("drivers").document(docId).set(driver);
+
+                WriteResult result = future.get();
+                System.out.println("✅ Driver saved to Firestore at: " + result.getUpdateTime());
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Platform.runLater(() ->
+                        showAlert(Alert.AlertType.ERROR, "Save Error",
+                                "Could not save driver:\n" + ex.getMessage())
+                );
+            }
+        }).start();
     }
 
+    // -------------------------------------------------------
+    // UI: ADD DRIVER
+    // -------------------------------------------------------
     @FXML
     private void handleAddDriver() {
         System.out.println("➕ Add driver clicked");
@@ -267,9 +241,10 @@ public class DriverController {
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(driverTable.getScene().getWindow());
             dialogStage.setScene(new Scene(root));
-            dialogStage.setResizable(false);
 
+// IMPORTANT FIX
             controller.setDialogStage(dialogStage);
+
             dialogStage.showAndWait();
 
             Driver newDriver = controller.getResult();
@@ -277,123 +252,50 @@ public class DriverController {
                 driverList.add(newDriver);
                 driverTable.refresh();
                 updateStats();
-                System.out.println("✅ Driver added successfully: " + newDriver.getFullName());
+                saveDriverToFirestore(newDriver);
+                System.out.println("✅ Driver added: " + newDriver.getFullName());
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error opening Add Driver dialog: " + e.getMessage());
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error",
                     "Could not open Add Driver dialog:\n" + e.getMessage());
         }
     }
 
+    // -------------------------------------------------------
+    // EDIT, VIEW, ASSIGN
+    // -------------------------------------------------------
     private void handleEditDriver(Driver driver) {
         System.out.println("✏️ Edit driver: " + driver.getId());
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/trucklogisticsapp/EditDriverDialog.fxml")
-            );
-            Parent root = loader.load();
-
-            EditDriverDialogController controller = loader.getController();
-
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Edit Driver - " + driver.getFullName());
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(driverTable.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
-            dialogStage.setResizable(false);
-
-            controller.setDriver(driver);
-            dialogStage.showAndWait();
-
-            if (controller.wasDeleted()) {
-                driverList.remove(driver);
-                System.out.println("✅ Driver deleted from list");
-            }
-
-            driverTable.refresh();
-            updateStats();
-            System.out.println("✅ Driver edit dialog closed");
-
-        } catch (Exception e) {
-            System.err.println("❌ Error opening Edit Driver dialog: " + e.getMessage());
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error",
-                    "Could not open Edit Driver dialog:\n" + e.getMessage());
-        }
+        // TODO: Add edit dialog + save changes to Firestore
     }
 
     private void handleViewDriver(Driver driver) {
         System.out.println("👁️ View driver: " + driver.getId());
-
-        String details = String.format(
-                "═══════════════════════════════\n" +
-                        "       DRIVER DETAILS\n" +
-                        "═══════════════════════════════\n\n" +
-                        "👤 PERSONAL INFORMATION\n" +
-                        "  • ID: %s\n" +
-                        "  • Name: %s\n" +
-                        "  • Email: %s\n" +
-                        "  • Phone: %s\n" +
-                        "  • Age: %d years\n\n" +
-                        "🪪 LICENSE INFORMATION\n" +
-                        "  • License Number: %s\n" +
-                        "  • State: %s\n" +
-                        "  • Class: %s\n" +
-                        "  • Expiration: %s\n" +
-                        "  • Medical Card Exp: %s\n" +
-                        "  • Compliance: %s\n\n" +
-                        "📋 ENDORSEMENTS\n" +
-                        "  • %s\n\n" +
-                        "📊 STATUS\n" +
-                        "  • Available: %s\n" +
-                        "  • Assigned Truck: %s\n" +
-                        "  • Years of Service: %d\n\n" +
-                        "⭐ PERFORMANCE\n" +
-                        "  • Rating: %.1f / 5.0\n" +
-                        "  • Total Trips: %d\n" +
-                        "  • Total Miles: %,.0f\n\n" +
-                        "📝 NOTES\n%s",
-                driver.getId(),
-                driver.getFullName(),
-                driver.getEmail() != null && !driver.getEmail().isEmpty() ? driver.getEmail() : "Not Set",
-                driver.getPhone(),
-                driver.getAge(),
-                driver.getLicenseNumber(),
-                driver.getLicenseState(),
-                driver.getLicenseClass(),
-                driver.getLicenseExpiry() != null ? driver.getLicenseExpiry().toString() : "Not Set",
-                driver.getMedicalCertExpiry() != null ? driver.getMedicalCertExpiry().toString() : "Not Set",
-                driver.getComplianceStatus(),
-                driver.getEndorsements(),
-                driver.isAvailable() ? "Yes ✓" : "No (Assigned)",
-                driver.getAssignedTruckId() != null ? driver.getAssignedTruckId() : "None",
-                driver.getYearsOfService(),
-                driver.getRating(),
-                driver.getTotalTrips(),
-                driver.getTotalMiles(),
-                driver.getNotes() != null && !driver.getNotes().isEmpty() ? "  " + driver.getNotes() : "  No notes"
-        );
+        String details = "Driver: " + driver.getFullName() + "\nPhone: " + driver.getPhone();
 
         showAlert(Alert.AlertType.INFORMATION, "Driver Details", details);
     }
 
     private void handleAssignDriver(Driver driver) {
-        System.out.println("🚛 Assign driver to truck: " + driver.getId());
-
         if (!driver.isAvailable()) {
             showAlert(Alert.AlertType.WARNING, "Driver Not Available",
-                    "Driver " + driver.getFullName() + " is currently assigned to truck: " +
-                            driver.getAssignedTruckId());
+                    driver.getFullName() + " is already assigned.");
             return;
         }
+        showAlert(Alert.AlertType.INFORMATION, "Assign", "Assignment feature coming soon!");
+    }
 
-        // This would open a truck selection dialog in a real app
-        showAlert(Alert.AlertType.INFORMATION, "Assign Driver",
-                "Truck assignment feature coming soon!\n\n" +
-                        "This will allow you to assign " + driver.getFullName() + " to an available truck.");
+    // -------------------------------------------------------
+    // UTILS
+    // -------------------------------------------------------
+    private void updateStats() {
+        lblTotalDrivers.setText(String.valueOf(driverList.size()));
+        lblAvailableDrivers.setText(String.valueOf(driverList.stream().filter(Driver::isAvailable).count()));
+
+        double avgRating = driverList.stream().mapToDouble(Driver::getRating).average().orElse(0);
+        lblAvgRating.setText(String.format("%.1f", avgRating));
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
